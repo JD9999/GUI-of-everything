@@ -162,6 +162,8 @@ public class TimeWindow implements SmallLinkWindow {
 		if(minute < 10) sMinute = "0" + String.valueOf(minute);
 		else sMinute = String.valueOf(minute);
 		String end = cal.get(Calendar.HOUR_OF_DAY) < 12 || cal.get(Calendar.HOUR_OF_DAY) == 24 ? "AM" : "PM";
+		String sHour = String.valueOf(hour);
+		if(sHour.startsWith("0")) sHour.replaceFirst("0", "12");
 		String ret = String.valueOf(hour) + ":" + sMinute + " " + end;
 		return ret;
 	}

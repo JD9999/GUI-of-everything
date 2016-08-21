@@ -34,6 +34,7 @@ public class MathWindow implements Window {
 	protected static JTextField angField;
 	protected static JLabel angLabel;
 	private JSplitPane splitPane;
+	private boolean isSet = false;
 	
 	@Override
 	public String getName() {
@@ -69,6 +70,7 @@ public class MathWindow implements Window {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				isSet = true;
 				JPanel overseePanel = new JPanel();
 				JTextField hypField = new JTextField();
 				JTextField aField = new JTextField();
@@ -184,6 +186,7 @@ public class MathWindow implements Window {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				isSet = true;
 				JPanel overseePanel = new JPanel();		
 				JTextField hypField = new JTextField();
 				JTextField aField = new JTextField();
@@ -367,15 +370,17 @@ public class MathWindow implements Window {
 
 	@Override
 	public void setColour(Color c) {
-		hypField.setForeground(c);
-		adjSmall2Field.setForeground(c);
-		oppSmall1Field.setForeground(c);
-		answerField.setForeground(c);
-		if(angField !=null)angField.setForeground(c);
-		hypLabel.setForeground(c);
-		adjSmall2Label.setForeground(c);
-		oppSmall1Label.setForeground(c);
-		if(angLabel !=null)angLabel.setForeground(c);
+		if(isSet){
+			hypField.setForeground(c);
+			adjSmall2Field.setForeground(c);
+			oppSmall1Field.setForeground(c);
+			answerField.setForeground(c);
+			if(angField !=null)angField.setForeground(c);
+			hypLabel.setForeground(c);
+			adjSmall2Label.setForeground(c);
+			oppSmall1Label.setForeground(c);
+			if(angLabel !=null)angLabel.setForeground(c);
+		}else splitPane.setBackground(c);
 	}
 
 	@Override
