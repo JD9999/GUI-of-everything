@@ -42,6 +42,7 @@ public class NoteWindow implements Window {
 
 	@Override
 	public JInternalFrame getInsideFrame() {
+		topics.clear();
 		JInternalFrame intFrame = new JInternalFrame();
 		JPanel frame = new JPanel();
 		JMenuBar menuBar = new JMenuBar();
@@ -59,6 +60,8 @@ public class NoteWindow implements Window {
 					if(line.startsWith(Entry.TAB)) note.addLine(line);
 					else{
 						saveNote(note);
+						note = new Note();
+						note.setHeading(line);
 					}
 				}
 			}
@@ -81,10 +84,12 @@ public class NoteWindow implements Window {
 
 	private void saveNote(Note note) {
 		String heading = note.getHeading();
+		System.out.println("-------------------------");
 		System.out.println("Note heading: " + heading);
 		for(String noteLine : note.getLines()){
 			System.out.println("Note line: " + noteLine);
 		}
+		System.out.println("-------------------------");
 		notes.put(note.getHeading(), note);
 		JButton button = new JButton(heading);
 		button.addActionListener(getNoteListener(heading));

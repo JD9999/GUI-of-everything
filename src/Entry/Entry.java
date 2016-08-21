@@ -57,8 +57,7 @@ public class Entry {
 		for(JButton button : buttonMap.values()){
 			bottom.add(button);
 		}
-		SettingsLoader loader = new SettingsLoader();
-		loader.obtainSettings();
+		SettingsLoader.obtainSettings();
 		Window[] windows = WindowEntry.getAllWindows();
 		for(Window window : windows){
 			JButton item = new JButton(window.getName());

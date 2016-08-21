@@ -21,9 +21,8 @@ import Window.WindowEntry;
 public class SettingsLoader {
 
 	private static List<GUISetting> settings = new ArrayList<GUISetting>();
-	public SettingsLoader() {}
 
-	public void obtainSettings(){
+	public static void obtainSettings(){
 		Set<GUISetting> s = new HashSet<GUISetting>();
 		Window[] windows = WindowEntry.getAllWindows();
 		for(int i = 0; i < windows.length; i++){
@@ -36,6 +35,7 @@ public class SettingsLoader {
 			try {
 				List<String> lines = Files.readAllLines(Entry.file.toPath());
 				for(String line: lines){
+					if(line.startsWith("//")) continue;
 					if(line.contains(setting.getText())){
 						String value = line.substring(line.indexOf('=') + 1, line.length());
 						if(value.equalsIgnoreCase("false")) setting.setValue(false);
