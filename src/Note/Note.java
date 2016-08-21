@@ -8,7 +8,9 @@ public class Note {
 	private List<String> lines = new ArrayList<String>();
 	private String heading = "";
 	
-	public Note(){}
+	public Note(){
+		lines.clear();
+	}
 
 	public String getHeading() {
 		return heading;
