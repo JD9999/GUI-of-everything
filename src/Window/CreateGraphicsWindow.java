@@ -214,13 +214,13 @@ public class CreateGraphicsWindow implements Window {
 	protected String getYPos(JButton button) {
 		Point p = button.getLocation();
 		int height = button.getHeight();
-		return String.valueOf(p.getY() / (height /3));
+		return String.valueOf((p.getY() / (height /3)) / 3);
 	}
 
 	protected String getXPos(JButton button) {
 		Point p = button.getLocation();
 		int width = button.getWidth();
-		return String.valueOf(p.getX() / (width / 3));
+		return String.valueOf((p.getX() / (width / 3)) / 3);
 	}
 
 	protected JPanel getRotatePanel() {
