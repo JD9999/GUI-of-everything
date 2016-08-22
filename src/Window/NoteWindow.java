@@ -192,10 +192,7 @@ public class NoteWindow implements Window {
 	@Override
 	public GUISetting[] getSettings() {
 		GUISetting textColour = new GUISetting("text-colour", getName());
-		GUISetting noteSplit = new GUISetting("split-notes-supported", getName());
-		GUISetting horizontalLines = new GUISetting("horizontal-lines", getName());
-		GUISetting verticalLines = new GUISetting("vertical-lines", getName());
-		return new GUISetting[]{textColour, noteSplit, horizontalLines, verticalLines};
+		return new GUISetting[]{textColour};
 	}
 
 	@Override

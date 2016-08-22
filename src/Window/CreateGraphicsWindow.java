@@ -8,6 +8,8 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ public class CreateGraphicsWindow implements Window {
 	private final JSplitPane pane = new JSplitPane();
 	private JButton button;
 	protected JButton currentButton;
+	protected JFrame frame;
 	private static List<JButton> buttonList;
 	private static JTextField row;
 	private static JTextField column;
@@ -56,8 +59,9 @@ public class CreateGraphicsWindow implements Window {
 			try {
 				BufferedImage white = ImageIO.read(new File("white.png"));
 				int type = white.getType() == 0? BufferedImage.TYPE_INT_ARGB : white.getType();
-				BufferedImage newWhite = Entry.resizeImage(white, type, 200, 200);
-				ImageIcon whiteimage = new ImageIcon(newWhite);
+				BufferedImage newWhite = Entry.resizeImage(white, type, 200 - 38, (589 / 3)-38);
+				System.out.println("Width: " + newWhite.getWidth() + " and height: " + newWhite.getHeight());
+				ImageIcon whiteimage = new ImageIcon(newWhite); 
 				whiteimage.setDescription(WHITESPACE);
 				buttonList.add(new JButton(whiteimage));
 			} catch (IOException e) {
@@ -130,8 +134,20 @@ public class CreateGraphicsWindow implements Window {
 		JPanel drawingPanel = getDrawingPanel(whitespace, buttonList);
 		overseer.add(drawingPanel);
 		pane.setLeftComponent(overseer);
+		pane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, getPropertyChangeListener());
 		return pane;
 		
+	}
+
+	private PropertyChangeListener getPropertyChangeListener() {
+		return new PropertyChangeListener(){
+
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				System.out.println("Divider location at: " + pane.getDividerLocation());
+			}
+			
+		};
 	}
 
 	private ActionListener getSelectionListener(JButton button) {
@@ -146,6 +162,7 @@ public class CreateGraphicsWindow implements Window {
 
 	private JPanel getDrawingPanel(JButton whiteButton, List<JButton> buttons) {
 		JPanel panel = new JPanel();
+		panel.setSize(600, Entry.INTERNAL_FRAME_HEIGHT);
 		panel.setLayout(new GridLayout(3,3));
 		for(int i = 0; i < buttons.size(); i++){
 			System.out.println("Index: " + i);
@@ -169,11 +186,20 @@ public class CreateGraphicsWindow implements Window {
 	}
 
 	protected void openEditFrame(){
+		if(frame == null) openAndLinkFrame();
+		else if(frame.isVisible()) return;
+		else if(frame.isShowing()) return;
+		else openAndLinkFrame();
+		return;
+	}
+	
+	private void openAndLinkFrame() {
 		SwingUtilities.invokeLater(new Runnable(){
 
 			@Override
 			public void run() {
-				JFrame frame = new JFrame();
+				frame = new JFrame();
+				frame.setAlwaysOnTop(true);
 				JPanel shapePanel = new JPanel();
 				shapePanel.setLayout(new GridLayout(4,1));
 				JButton recShape = rectangleShape;
@@ -210,7 +236,7 @@ public class CreateGraphicsWindow implements Window {
 			
 		});
 	}
-	
+
 	protected String getYPos(JButton button) {
 		Point p = button.getLocation();
 		int height = button.getHeight();
@@ -370,7 +396,6 @@ public class CreateGraphicsWindow implements Window {
 
 	private ActionListener getAddListener() {
 		return new ActionListener(){
-
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				int row = Integer.parseInt(CreateGraphicsWindow.row.getText());
