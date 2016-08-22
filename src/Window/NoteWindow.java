@@ -7,8 +7,10 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -112,16 +114,22 @@ public class NoteWindow implements Window {
 			public void actionPerformed(ActionEvent event){
 				File file = new File("notes.txt");
 				File tempFile = new File("notes-last.txt");
-				if(file.renameTo(tempFile)){
-					String text = area.getText();
-					try {
-						Files.write(file.toPath(), text.getBytes(), getOptions());
-					} catch (IOException e) {
-						ErrorWindow.forException(e);
-					}
-				}else ErrorWindow.forException(new RuntimeException("Unable to rename file!"));
+				String text = area.getText();
+				try {
+					Files.copy(file.toPath(), tempFile.toPath(), getCopyOptions());
+					Files.write(file.toPath(), text.getBytes(), getOptions());
+				} catch (IOException e) {
+					e.printStackTrace();
+					ErrorWindow.forException(e);
+				}
 			}
 			
+		};
+	}
+
+	protected CopyOption[] getCopyOptions() {
+		return new CopyOption[]{
+			StandardCopyOption.REPLACE_EXISTING
 		};
 	}
 

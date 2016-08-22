@@ -11,7 +11,9 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import Date.Astronomical;
 import Settings.GUISetting;
@@ -28,7 +30,7 @@ public class AstronautWindow implements Window{
 	private JButton monthButton;
 	private JLabel questionLabel;
 	private JButton answerButton;
-	private JTextField answerField;
+	private JTextArea answerField;
 	
 	@Override
 	public String getName() {
@@ -103,25 +105,31 @@ public class AstronautWindow implements Window{
 		panel.add(monthPanel);
 		pane.setLeftComponent(panel);
 		
-		JPanel right = new JPanel();
+		JSplitPane rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		JPanel top = new JPanel();
+		top.setLayout(new GridLayout(2,1));
+		JPanel bottom = new JPanel();
 		JLabel label = new JLabel();
 		questionLabel = label;
+		questionLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		questionLabel.setVerticalAlignment(SwingConstants.CENTER);
 		questionLabel.setText("How long is the astronaut behind us?");
 		JButton button = new JButton();
-		JTextField field = new JTextField();
-		answerField = field;
-		button.addActionListener(getActionListener(field, hourField, dayField, weekField, monthField));
+		answerField = new JTextArea();
+		button.addActionListener(getActionListener(answerField, hourField, dayField, weekField, monthField));
 		button.setText("Work it out!");
 		answerButton = button;
-		right.add(questionLabel);
-		right.add(answerButton);
-		right.add(answerField);
-		pane.setRightComponent(right);	
+		top.add(questionLabel);
+		top.add(answerButton);
+		bottom.add(answerField);
+		rightPane.setLeftComponent(top);
+		rightPane.setRightComponent(bottom);
+		pane.setRightComponent(rightPane);	
 			
 		return pane;
 	}
 
-	private ActionListener getActionListener(JTextField field, JTextField fieldH,
+	private ActionListener getActionListener(JTextArea answer, JTextField fieldH,
 			JTextField fieldD, JTextField fieldW, JTextField fieldM) {
 		return new ActionListener(){
 
@@ -140,7 +148,7 @@ public class AstronautWindow implements Window{
 				astro.passDays(days);
 				astro.passWeeks(weeks);
 				astro.passMonths(months);
-				field.setText("They are behind us by " + astro.getDifferenceInMilliseconds() + " milliseconds.");
+				answer.setText("They are behind us by " + astro.getDifferenceInMilliseconds() + " milliseconds.");
 				fieldH.setText("0");
 				fieldD.setText("0");
 				fieldW.setText("0");
@@ -181,6 +189,9 @@ public class AstronautWindow implements Window{
 		dayButton.setForeground(c);
 		weekButton.setForeground(c);
 		monthButton.setForeground(c);
+		questionLabel.setForeground(c);
+		answerButton.setForeground(c);
+		answerField.setForeground(c);
 	}
 
 	@Override
