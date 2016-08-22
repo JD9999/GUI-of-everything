@@ -57,5 +57,4 @@ public class ColourFrameShower implements SmallLinkWindow {
 	public JButton getButton() {
 		return button;
 	}
-
 }

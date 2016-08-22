@@ -163,10 +163,19 @@ public class NoteWindow implements Window {
 
 	@Override
 	public void setColour(Color c) {
-		for(GUISetting setting : SettingsLoader.getSettings()){
+		List<GUISetting> settings = SettingsLoader.getSettings();
+		System.out.println(settings.size());
+		for(GUISetting setting : settings){
+			System.out.println("Setting: " + setting);
 			if(setting.getText().equals("text-colour")){
-				if(setting.getValue()) area.setForeground(c);
-				else area.setBackground(c);
+				if(setting.getValue()){
+					System.out.println("Setting text colour");
+					area.setForeground(c);
+				}
+				else{
+					System.out.println("Setting background colour");
+					area.setBackground(c);
+				}
 			}
 		}
 	}

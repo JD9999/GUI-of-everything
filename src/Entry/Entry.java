@@ -22,6 +22,7 @@ import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
 
 import Settings.SettingsLoader;
+import Window.ColourFrameShower;
 import Window.ErrorWindow;
 import Window.GUIFrame;
 import Window.SmallLinkWindow;
@@ -134,9 +135,10 @@ public class Entry {
 				}
 				synchronized(lock){
 					currentframe = intFrame;
-					currentWindow = window;
 					intFrame.setVisible(true);
 					frame.repaint();
+					if(window instanceof ColourFrameShower) return;
+					currentWindow = window;
 				}
 				System.out.println("Done!");
 			}
