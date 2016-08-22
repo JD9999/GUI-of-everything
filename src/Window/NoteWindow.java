@@ -5,12 +5,12 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,7 +22,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuBar;
-import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
 import Converter.ListConverter;
@@ -36,6 +36,7 @@ public class NoteWindow implements Window {
 	public List<JButton> topics = new ArrayList<JButton>();
 	public Map<String, Note> notes = new LinkedHashMap<String, Note>();
 	private final JTextArea area = new JTextArea();
+	protected String currentHeading;
 
 	@Override
 	public Color getCurrentColour() {
@@ -46,7 +47,7 @@ public class NoteWindow implements Window {
 	public JInternalFrame getInsideFrame() {
 		topics.clear();
 		JInternalFrame intFrame = new JInternalFrame();
-		JPanel frame = new JPanel();
+		JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		JMenuBar menuBar = new JMenuBar();
 		System.out.println("Starting block!");
 		try {
@@ -73,11 +74,11 @@ public class NoteWindow implements Window {
 				menuBar.add(b);
 			}
 			menuBar.add(getButton(), BorderLayout.EAST);
-			frame.add(menuBar, BorderLayout.NORTH);
-			frame.add(area, BorderLayout.CENTER);
+			pane.setLeftComponent(menuBar);
+			pane.setRightComponent(area);
 			area.setVisible(true);
 			menuBar.setVisible(true);
-			intFrame.add(frame);
+			intFrame.add(pane);
 		} catch (IOException e) {
 			ErrorWindow.forException(e);
 		}
@@ -114,22 +115,49 @@ public class NoteWindow implements Window {
 			public void actionPerformed(ActionEvent event){
 				File file = new File("notes.txt");
 				File tempFile = new File("notes-last.txt");
-				String text = area.getText();
 				try {
-					Files.copy(file.toPath(), tempFile.toPath(), getCopyOptions());
-					Files.write(file.toPath(), text.getBytes(), getOptions());
+					List<String> lines = Files.readAllLines(file.toPath());
+					BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+					for(String line : lines){
+						writer.write(line);
+						writer.newLine();
+					}
+					writer.close();
+					Note n = notes.get(currentHeading);
+					String[] array = area.getText().split(System.getProperty("line.separator"));
+					List<String> ls = toList(array);
+					n.setLines(ls);
+					List<String> allNotes = getAllNotesAsList();
+					writer = new BufferedWriter(new FileWriter(file));
+					for(String line : allNotes){
+						writer.write(line);
+						writer.newLine();
+					}
+					writer.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 					ErrorWindow.forException(e);
 				}
 			}
-			
-		};
-	}
 
-	protected CopyOption[] getCopyOptions() {
-		return new CopyOption[]{
-			StandardCopyOption.REPLACE_EXISTING
+			private List<String> getAllNotesAsList() {
+				List<String> ls = new ArrayList<String>();
+				for(Note n : notes.values()){
+					ls.add(n.getHeading());
+					for(String line : n.getLines()){
+						if(!line.startsWith(Entry.TAB)) line = Entry.TAB + line;
+						ls.add(line);
+					}
+				}
+				return ls;
+			}
+
+			private List<String> toList(String[] array) {
+				List<String> ls = new ArrayList<String>();
+				for(String s : array) ls.add(s);
+				return ls;
+			}
+			
 		};
 	}
 
@@ -138,6 +166,7 @@ public class NoteWindow implements Window {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				currentHeading = heading;
 				Note n = notes.get(heading);
 				ListConverter<String> conv = new ListConverter<>(n.getLines());
 				area.setText(conv.toLinedString());
@@ -148,10 +177,10 @@ public class NoteWindow implements Window {
 	private void ensureFile() throws IOException {
 		File file = new File("notes.txt");
 		if(!file.exists()) file.createNewFile();
-		if(!(file.length() > 0)) Files.write(file.toPath(), "Heading".getBytes(), getOptions());
+		if(!(file.length() > 0)) Files.write(file.toPath(), "Heading".getBytes(), getWriteOptions());
 	}
 
-	private OpenOption[] getOptions() {
+	private OpenOption[] getWriteOptions() {
 		return new OpenOption[]{StandardOpenOption.WRITE};
 	}
 
@@ -172,20 +201,17 @@ public class NoteWindow implements Window {
 	@Override
 	public void setColour(Color c) {
 		List<GUISetting> settings = SettingsLoader.getSettings();
-		System.out.println(settings.size());
 		for(GUISetting setting : settings){
-			System.out.println("Setting: " + setting);
 			if(setting.getText().equals("text-colour")){
 				if(setting.getValue()){
-					System.out.println("Setting text colour");
 					area.setForeground(c);
 				}
 				else{
-					System.out.println("Setting background colour");
 					area.setBackground(c);
 				}
 			}
 		}
+		for(JButton b : topics) b.setForeground(c);
 	}
 
 }
