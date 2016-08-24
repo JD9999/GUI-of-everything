@@ -1,6 +1,10 @@
 package Window;
 
-import java.awt.BorderLayout;
+import Converter.ListConverter;
+import Entry.Entry;
+import Note.Note;
+import Settings.GUISetting;
+import Settings.SettingsLoader;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,7 +20,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -25,83 +28,74 @@ import javax.swing.JMenuBar;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
-import Converter.ListConverter;
-import Entry.Entry;
-import Note.Note;
-import Settings.GUISetting;
-import Settings.SettingsLoader;
-
-public class NoteWindow implements Window {
-	
-	public List<JButton> topics = new ArrayList<JButton>();
-	public Map<String, Note> notes = new LinkedHashMap<String, Note>();
+public class NoteWindow implements Window{
+	public List<JButton> topics = new ArrayList<>();
+	public Map<String, Note> notes = new LinkedHashMap<>();
 	private final JTextArea area = new JTextArea();
 	protected String currentHeading;
 
-	@Override
-	public Color getCurrentColour() {
-		return area.getForeground();
+	public Color getCurrentColour(){
+		return this.area.getForeground();
 	}
 
-	@Override
-	public JInternalFrame getInsideFrame() {
-		topics.clear();
+	public JInternalFrame getInsideFrame(){
+		this.topics.clear();
 		JInternalFrame intFrame = new JInternalFrame();
-		JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		JSplitPane pane = new JSplitPane(0);
 		JMenuBar menuBar = new JMenuBar();
 		System.out.println("Starting block!");
-		try {
+		try{
 			ensureFile();
 			List<String> lines = Files.readAllLines(new File("notes.txt").toPath());
-			for(String fileLine : lines){
+			for (String fileLine : lines) {
 				System.out.println(fileLine);
 			}
 			Note note = new Note();
-			for(String line : lines){
-				if(lines.get(0).equals(line) && !line.startsWith(Entry.TAB)) note.setHeading(line);
-				else{
-					if(line.startsWith(Entry.TAB)) note.addLine(line);
-					else{
-						saveNote(note);
-						note = new Note();
-						note.setHeading(line);
-					}
+			for (String line : lines) {
+				if ((lines.get(0)).equals(line) && (!line.startsWith(Entry.TAB))){
+					note.setHeading(line);
+				}else if (line.startsWith(Entry.TAB)){
+					note.addLine(line);
+				}else{
+					saveNote(note);
+					note = new Note();
+					note.setHeading(line);
 				}
 			}
 			saveNote(note);
-			for(JButton b : topics){
+			for (JButton b : this.topics){
 				System.out.println("Topic: " + b.getText());
 				menuBar.add(b);
 			}
-			menuBar.add(getButton(), BorderLayout.EAST);
+			menuBar.add(getButton(), "East");
 			pane.setLeftComponent(menuBar);
-			pane.setRightComponent(area);
-			area.setVisible(true);
+			pane.setRightComponent(this.area);
+			this.area.setVisible(true);
 			menuBar.setVisible(true);
 			intFrame.add(pane);
-		} catch (IOException e) {
+		}catch (IOException e){
 			ErrorWindow.forException(e);
 		}
 		return intFrame;
 	}
 
-	private void saveNote(Note note) {
+	private void saveNote(Note note){
 		String heading = note.getHeading();
 		System.out.println("-------------------------");
 		System.out.println("Note heading: " + heading);
-		for(String noteLine : note.getLines()){
+		for (String noteLine : note.getLines()) {
 			System.out.println("Note line: " + noteLine);
 		}
 		System.out.println("-------------------------");
-		notes.put(note.getHeading(), note);
+		this.notes.put(note.getHeading(), note);
 		JButton button = new JButton(heading);
 		button.addActionListener(getNoteListener(heading));
-		topics.add(button);
+		this.topics.add(button);
 	}
 
-	private JButton getButton() throws IOException {
+	private JButton getButton() throws IOException{
 		BufferedImage image = ImageIO.read(new File("save-icon.png"));
-		int type = image.getType() == 0? BufferedImage.TYPE_INT_ARGB : image.getType();
+		int type = image.getType() == 0 ? 2 : image.getType();
 		image = Entry.resizeImage(image, type, 25, 25);
 		ImageIcon icon = new ImageIcon(image);
 		JButton button = new JButton(icon);
@@ -109,106 +103,106 @@ public class NoteWindow implements Window {
 		return button;
 	}
 
-	private ActionListener getSaveListener() {
+	private ActionListener getSaveListener(){
 		return new ActionListener(){
 			
 			public void actionPerformed(ActionEvent event){
 				File file = new File("notes.txt");
 				File tempFile = new File("notes-last.txt");
-				try {
+				try{
 					List<String> lines = Files.readAllLines(file.toPath());
 					BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-					for(String line : lines){
+					for (String line : lines){
 						writer.write(line);
 						writer.newLine();
 					}
 					writer.close();
-					Note n = notes.get(currentHeading);
-					String[] array = area.getText().split(System.getProperty("line.separator"));
+					Note n = (Note)NoteWindow.this.notes.get(NoteWindow.this.currentHeading);
+					String[] array = NoteWindow.this.area.getText().split(System.getProperty("line.separator"));
 					List<String> ls = toList(array);
 					n.setLines(ls);
 					List<String> allNotes = getAllNotesAsList();
 					writer = new BufferedWriter(new FileWriter(file));
-					for(String line : allNotes){
+					for (String line : allNotes){
 						writer.write(line);
 						writer.newLine();
 					}
 					writer.close();
-				} catch (IOException e) {
+				}catch (IOException e){
 					e.printStackTrace();
 					ErrorWindow.forException(e);
 				}
 			}
 
-			private List<String> getAllNotesAsList() {
-				List<String> ls = new ArrayList<String>();
+			private List<String> getAllNotesAsList(){
+				List<String> ls = new ArrayList<>();
 				for(Note n : notes.values()){
 					ls.add(n.getHeading());
-					for(String line : n.getLines()){
-						if(!line.startsWith(Entry.TAB)) line = Entry.TAB + line;
-						ls.add(line);
-					}
+					ls.addAll(n.getLines());
 				}
 				return ls;
 			}
 
-			private List<String> toList(String[] array) {
-				List<String> ls = new ArrayList<String>();
+			private List<String> toList(String[] array){
+				List<String> ls = new ArrayList<>();
 				for(String s : array) ls.add(s);
 				return ls;
 			}
-			
 		};
 	}
 
-	private ActionListener getNoteListener(String heading) {
+	private ActionListener getNoteListener(final String heading){
 		return new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				currentHeading = heading;
-				Note n = notes.get(heading);
+			
+			public void actionPerformed(ActionEvent event){
+				NoteWindow.this.currentHeading = heading;
+				Note n = (Note)NoteWindow.this.notes.get(heading);
 				ListConverter<String> conv = new ListConverter<>(n.getLines());
-				area.setText(conv.toLinedString());
+				NoteWindow.this.area.setText(conv.toLinedString());
 			}
-			};
+		};
 	}
 
-	private void ensureFile() throws IOException {
+	private void ensureFile() throws IOException{
 		File file = new File("notes.txt");
-		if(!file.exists()) file.createNewFile();
-		if(!(file.length() > 0)) Files.write(file.toPath(), "Heading".getBytes(), getWriteOptions());
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+		if (file.length() <= 0L) {
+			Files.write(file.toPath(), "Heading".getBytes(), getWriteOptions());
+		}
 	}
 
-	private OpenOption[] getWriteOptions() {
-		return new OpenOption[]{StandardOpenOption.WRITE};
+	private OpenOption[] getWriteOptions(){
+		return new OpenOption[] { StandardOpenOption.WRITE };
 	}
 
-	@Override
-	public String getName() {
+	public String getName(){
 		return "Notes";
 	}
 
-	@Override
-	public GUISetting[] getSettings() {
+	public GUISetting[] getSettings(){
 		GUISetting textColour = new GUISetting("text-colour", getName());
-		return new GUISetting[]{textColour};
+		return new GUISetting[] { textColour };
 	}
 
-	@Override
-	public void setColour(Color c) {
+	public void setColour(Color c){
 		List<GUISetting> settings = SettingsLoader.getSettings();
-		for(GUISetting setting : settings){
-			if(setting.getText().equals("text-colour")){
-				if(setting.getValue()){
-					area.setForeground(c);
-				}
-				else{
-					area.setBackground(c);
+		for (GUISetting setting : settings) {
+			if (setting.getText().equals("text-colour")) {
+				if (setting.getValue()) {
+					this.area.setForeground(c);
+				} else {
+					this.area.setBackground(c);
 				}
 			}
 		}
-		for(JButton b : topics) b.setForeground(c);
+		for(JButton b : topics){
+			b.setForeground(c);
+		}
 	}
 
+	public String getDescription(){
+		return "A note window. This is managed by the notes.txt file. To add a note, you will need to put a heading on a new line at the end of a file manually. You can click on each heading and edit the notes. You can then press the save button to save the note.";
+	}
 }

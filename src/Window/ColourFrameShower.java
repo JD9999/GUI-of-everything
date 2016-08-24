@@ -40,7 +40,7 @@ public class ColourFrameShower implements SmallLinkWindow {
 	@Override
 	public JInternalFrame getInsideFrame() {
 		frame.run();
-		return Entry.currentframe;
+		return Entry.currentFrame;
 	}
 
 	@Override
@@ -57,4 +57,9 @@ public class ColourFrameShower implements SmallLinkWindow {
 	public JButton getButton() {
 		return button;
 	}
+
+	public String getDescription() {
+   		return Entry.currentWindow.getDescription();
+ 	}
+
 }

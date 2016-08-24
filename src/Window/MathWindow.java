@@ -1,6 +1,15 @@
 package Window;
 
-import java.awt.BorderLayout;
+import Entry.Entry;
+
+import Math.Pythagoras;
+import Math.Trig;
+import Math.TrigValue;
+import Math.TrigonometryException;
+
+import Settings.GUISetting;
+import Settings.SettingsLoader;
+
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -15,15 +24,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import Math.Pythagoras;
-import Math.Trig;
-import Math.TrigValue;
-import Math.TrigonometryException;
-import Settings.GUISetting;
-import Settings.SettingsLoader;
-
-public class MathWindow implements Window {
-
+public class MathWindow implements Window{
 	protected static JTextField hypField;
 	protected static JTextField adjSmall2Field;
 	protected static JTextField oppSmall1Field;
@@ -35,19 +36,17 @@ public class MathWindow implements Window {
 	protected static JLabel angLabel;
 	private JSplitPane splitPane;
 	private boolean isSet = false;
-	
-	@Override
-	public String getName() {
+
+	public String getName(){
 		return "Maths";
 	}
 
-	@Override
-	public JInternalFrame getInsideFrame() {
+	public JInternalFrame getInsideFrame(){
 		JInternalFrame frame = new JInternalFrame();
 		JSplitPane pane = new JSplitPane();
-		pane.setDividerLocation(300);	
+		pane.setDividerLocation(300);
 		JPanel panel = new JPanel();
-		panel.setSize(300, 925);
+		panel.setSize(300, Entry.INTERNAL_FRAME_HEIGHT);
 		JButton pyth = new JButton();
 		JButton trig = new JButton();
 		pyth.setText("Pythagoars theorem");
@@ -56,21 +55,20 @@ public class MathWindow implements Window {
 		trig.setSize(300, 200);
 		pyth.addActionListener(getActionListenerForPythagoras());
 		trig.addActionListener(getActionListenerForTrignomotry());
-		panel.setLayout(new GridLayout(0,1));
+		panel.setLayout(new GridLayout(0, 1));
 		panel.add(pyth);
 		panel.add(trig);
 		pane.setLeftComponent(panel);
-		splitPane = pane;
-		frame.getContentPane().add(splitPane);
+		this.splitPane = pane;
+		frame.getContentPane().add(this.splitPane);
 		return frame;
 	}
 
-	private ActionListener getActionListenerForPythagoras() {
+	private ActionListener getActionListenerForPythagoras(){
 		return new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				isSet = true;
+			
+			public void actionPerformed(ActionEvent event){
+				MathWindow.this.isSet = true;
 				JPanel overseePanel = new JPanel();
 				JTextField hypField = new JTextField();
 				JTextField aField = new JTextField();
@@ -93,7 +91,7 @@ public class MathWindow implements Window {
 				aField.setSize(400, aLabel.getHeight());
 				bField.setSize(400, bLabel.getHeight());
 				button.setText("Work it out!");
-				
+
 				MathWindow.hypField = hypField;
 				MathWindow.oppSmall1Field = aField;
 				MathWindow.adjSmall2Field = bField;
@@ -101,80 +99,81 @@ public class MathWindow implements Window {
 				MathWindow.hypLabel = hypLabel;
 				MathWindow.oppSmall1Label = aLabel;
 				MathWindow.adjSmall2Label = bLabel;
-				
-				button.addActionListener(getActionListenerForPythagorasFinal(MathWindow.hypField, MathWindow.oppSmall1Field, MathWindow.adjSmall2Field, MathWindow.answerField));
-				overseePanel.setLayout(new GridLayout(0,1));
-				overseePanel.add(MathWindow.hypLabel, BorderLayout.CENTER);
-				overseePanel.add(MathWindow.hypField, BorderLayout.CENTER);
-				overseePanel.add(MathWindow.oppSmall1Label, BorderLayout.CENTER);
-				overseePanel.add(MathWindow.oppSmall1Field, BorderLayout.CENTER);
-				overseePanel.add(MathWindow.adjSmall2Label, BorderLayout.CENTER);
-				overseePanel.add(MathWindow.adjSmall2Field, BorderLayout.CENTER);
+
+				button.addActionListener(MathWindow.this.getActionListenerForPythagorasFinal(MathWindow.hypField, MathWindow.oppSmall1Field, MathWindow.adjSmall2Field, MathWindow.answerField));
+				overseePanel.setLayout(new GridLayout(0, 1));
+				overseePanel.add(MathWindow.hypLabel, "Center");
+				overseePanel.add(MathWindow.hypField, "Center");
+				overseePanel.add(MathWindow.oppSmall1Label, "Center");
+				overseePanel.add(MathWindow.oppSmall1Field, "Center");
+				overseePanel.add(MathWindow.adjSmall2Label, "Center");
+				overseePanel.add(MathWindow.adjSmall2Field, "Center");
 				overseePanel.add(button);
 				overseePanel.add(MathWindow.answerField);
-				splitPane.setRightComponent(overseePanel);
+				MathWindow.this.splitPane.setRightComponent(overseePanel);
 			}
 		};
 	}
-	
-	protected ActionListener getActionListenerForPythagorasFinal(JTextField hypo, JTextField ss1, JTextField ss2, JTextArea answerField2) {
-		return new ActionListener(){
 
-			private Pythagoras p = new Pythagoras();
+	protected ActionListener getActionListenerForPythagorasFinal(final JTextField hypo, final JTextField ss1, final JTextField ss2, JTextArea answerField2){
+		return new ActionListener(){
 			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			private Pythagoras p = new Pythagoras();
+
+			public void actionPerformed(ActionEvent arg0){
 				String hyp = hypo.getText();
 				String s1 = ss1.getText();
 				String s2 = ss2.getText();
-				if(hyp.equals("0")){
+				if (hyp.equals("0")){
 					double a = Double.parseDouble(s1);
 					double b = Double.parseDouble(s2);
-					if(a == 3 && b == 4 || a == 4 && b == 3) System.out.println("The result should be 5!");
-					double hypAnswer = p.getHypotenuse(a, b);
-					printWorkingIfSettingIsTrue(parseThroughSetting(hypAnswer), p.getWorking());
-				}else if(s1.equals("0")){
+					if (((a == 3.0D) && (b == 4.0D)) || ((a == 4.0D) && (b == 3.0D))) {
+						System.out.println("The result should be 5!");
+					}
+					double hypAnswer = this.p.getHypotenuse(a, b);
+					MathWindow.this.printWorkingIfSettingIsTrue(MathWindow.this.parseThroughSetting(hypAnswer), this.p.getWorking());
+				}else if (s1.equals("0")){
 					double c = Double.parseDouble(hyp);
 					double b = Double.parseDouble(s2);
-					double a = p.getShorterSide(b, c);
-					printWorkingIfSettingIsTrue(parseThroughSetting(a), p.getWorking());
-				}else if(s2.equals("0")){
+					double a = this.p.getShorterSide(b, c);
+					MathWindow.this.printWorkingIfSettingIsTrue(MathWindow.this.parseThroughSetting(a), this.p.getWorking());
+				}else if (s2.equals("0")){
 					double c = Double.parseDouble(hyp);
 					double a = Double.parseDouble(s1);
-					double b = p.getShorterSide(a, c);
-					printWorkingIfSettingIsTrue(parseThroughSetting(b), p.getWorking());
-				}else throw new IllegalArgumentException("All of the fields have stuff in them!");
-				
+					double b = this.p.getShorterSide(a, c);
+					MathWindow.this.printWorkingIfSettingIsTrue(MathWindow.this.parseThroughSetting(b), this.p.getWorking());
+				}else{
+					throw new IllegalArgumentException("All of the fields have stuff in them!");
+				}
 			}
 		};
 	}
 
-	protected String parseThroughSetting(double d) {
+	protected String parseThroughSetting(double d){
 		List<GUISetting> settings = SettingsLoader.getSettings();
-		for(GUISetting setting : settings){
-			if(setting.getText().equals("Round")){
+		for (GUISetting setting : settings) {
+			if (setting.getText().equals("Round")) {
 				return setting.getValue() ? String.valueOf(d) : String.valueOf(Math.round(d));
 			}
 		}
 		System.out.println("Unable to found Round setting in Maths heading. Does this exist?");
 		return String.valueOf(d);
 	}
-	
+
 	protected boolean printWorkingIfSettingIsTrue(String line, List<String> working){
+		answerField.setText("");
 		List<GUISetting> settings = SettingsLoader.getSettings();
-		for(GUISetting setting : settings){
-			if(setting.getText().equals("Show working")){
-				answerField.setText("");
-				if(setting.getValue()){
-					for(String workingLine : working){
+		for (GUISetting setting : settings) {
+			if (setting.getText().equals("Show working")){
+				if (setting.getValue()){
+					for (String workingLine : working){
 						answerField.append(workingLine);
 						answerField.append("\n");
 					}
 					return true;
-				}else{
-					answerField.append(working.get(working.size() - 1));
-					return false;
 				}
+				answerField.append(working.get(working.size() - 1));
+				return false;
 			}
 		}
 		System.out.println("Unable to found Show working setting in Maths heading. Does this exist?");
@@ -183,11 +182,10 @@ public class MathWindow implements Window {
 
 	private ActionListener getActionListenerForTrignomotry(){
 		return new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				isSet = true;
-				JPanel overseePanel = new JPanel();		
+			
+			public void actionPerformed(ActionEvent arg0){
+				MathWindow.this.isSet = true;
+				JPanel overseePanel = new JPanel();
 				JTextField hypField = new JTextField();
 				JTextField aField = new JTextField();
 				JTextField bField = new JTextField();
@@ -215,7 +213,7 @@ public class MathWindow implements Window {
 				bField.setSize(400, bLabel.getHeight());
 				anField.setSize(400, anLabel.getHeight());
 				button.setText("Work it out!");
-				
+
 				MathWindow.hypField = hypField;
 				MathWindow.oppSmall1Field = aField;
 				MathWindow.adjSmall2Field = bField;
@@ -225,167 +223,176 @@ public class MathWindow implements Window {
 				MathWindow.oppSmall1Label = aLabel;
 				MathWindow.adjSmall2Label = bLabel;
 				MathWindow.angLabel = anLabel;
-				
-				button.addActionListener(getActionListenerForTrigonomotryFinal(MathWindow.hypField, MathWindow.oppSmall1Field, MathWindow.adjSmall2Field, MathWindow.angField, MathWindow.answerField));
-				overseePanel.setLayout(new GridLayout(0,1));
-				overseePanel.add(MathWindow.hypLabel, BorderLayout.CENTER);
-				overseePanel.add(MathWindow.hypField, BorderLayout.CENTER);
-				overseePanel.add(MathWindow.oppSmall1Label, BorderLayout.CENTER);
-				overseePanel.add(MathWindow.oppSmall1Field, BorderLayout.CENTER);
-				overseePanel.add(MathWindow.adjSmall2Label, BorderLayout.CENTER);
-				overseePanel.add(MathWindow.adjSmall2Field, BorderLayout.CENTER);
-				overseePanel.add(MathWindow.angLabel, BorderLayout.CENTER);
-				overseePanel.add(MathWindow.angField, BorderLayout.CENTER);
+
+				button.addActionListener(MathWindow.this.getActionListenerForTrigonomotryFinal(MathWindow.hypField, MathWindow.oppSmall1Field, MathWindow.adjSmall2Field, MathWindow.angField, MathWindow.answerField));
+				overseePanel.setLayout(new GridLayout(0, 1));
+				overseePanel.add(MathWindow.hypLabel, "Center");
+				overseePanel.add(MathWindow.hypField, "Center");
+				overseePanel.add(MathWindow.oppSmall1Label, "Center");
+				overseePanel.add(MathWindow.oppSmall1Field, "Center");
+				overseePanel.add(MathWindow.adjSmall2Label, "Center");
+				overseePanel.add(MathWindow.adjSmall2Field, "Center");
+				overseePanel.add(MathWindow.angLabel, "Center");
+				overseePanel.add(MathWindow.angField, "Center");
 				overseePanel.add(button);
 				overseePanel.add(MathWindow.answerField);
-				splitPane.setRightComponent(overseePanel);
+				MathWindow.this.splitPane.setRightComponent(overseePanel);
 			}
-			
 		};
 	}
-    //a == opposite, b == adjacent
-	protected ActionListener getActionListenerForTrigonomotryFinal(JTextField hypo,
-			JTextField aa, JTextField bb, JTextField field, JTextArea anField) {
-			return new ActionListener(){
 
-				@Override
-				public void actionPerformed(ActionEvent event) {
-					String hyp = hypo.getText();
-					String a = aa.getText();
-					String b = bb.getText();
-					String an = anField.getText();
-					Trig trigonometry = new Trig();
-					if(an == "0"){
-						
-						if(hyp == "0"){
-							int shorta = Integer.parseInt(a);
-							int shortb = Integer.parseInt(b);
-							try {
-								TrigValue tA = new TrigValue(TrigValue.OPPOSITE, shorta);
-								TrigValue tB = new TrigValue(TrigValue.ADJACENT, shortb);
-								field.setText(String.valueOf(trigonometry.getAngleSize(tA, tB)) + " (tangent)");
-							} catch (TrigonometryException e) {
-								ErrorWindow.forException(e);
-							}
-						}else if(a == "0"){
-							int hypotenuse = Integer.parseInt(hyp);
-							int shortb = Integer.parseInt(b);
-							try {
-								TrigValue tH = new TrigValue(TrigValue.HYPOTENUSE, hypotenuse);
-								TrigValue tB = new TrigValue(TrigValue.ADJACENT, shortb);
-								field.setText(String.valueOf(trigonometry.getAngleSize(tH, tB)) + " (cosine)");
-							} catch (TrigonometryException e) {
-								ErrorWindow.forException(e);
-							}
-						}else if(b == "0"){
-							int hypotenuse = Integer.parseInt(hyp);
-							int shorta = Integer.parseInt(a);
-							try {
-								TrigValue tA = new TrigValue(TrigValue.OPPOSITE, shorta);
-								TrigValue tH = new TrigValue(TrigValue.HYPOTENUSE, hypotenuse);
-								field.setText(String.valueOf(trigonometry.getAngleSize(tA, tH)) + " (sine)");
-							} catch (TrigonometryException e) {
-								ErrorWindow.forException(e);
-							}
+	protected ActionListener getActionListenerForTrigonomotryFinal(final JTextField hypo, final JTextField aa, final JTextField bb, final JTextField field, final JTextArea anField){
+		return  new ActionListener(){
+			
+			public void actionPerformed(ActionEvent event){
+				String hyp = hypo.getText();
+				String a = aa.getText();
+				String b = bb.getText();
+				String an = anField.getText();
+				Trig trigonometry = new Trig();
+				if (an == "0"){
+					if (hyp == "0"){
+						int shorta = Integer.parseInt(a);
+						int shortb = Integer.parseInt(b);
+						try{
+							TrigValue tA = new TrigValue(TrigValue.OPPOSITE, shorta);
+							TrigValue tB = new TrigValue(TrigValue.ADJACENT, shortb);
+							field.setText(String.valueOf(trigonometry.getAngleSize(tA, tB)) + " (tangent)");
+						}catch (TrigonometryException e){
+							ErrorWindow.forException(e);
 						}
-						
-						
-					}else{
-						int angle = Integer.parseInt(an);
-						if(angle >= 90) throw new IllegalArgumentException("Angle is bigger than 90");
-						if(hyp.equals("0")){
-							if(a.equals("?")){
-								int shortb = Integer.parseInt(b);
-								try {
-									TrigValue tB = new TrigValue(TrigValue.ADJACENT, shortb);
-									TrigValue tA = new TrigValue(TrigValue.OPPOSITE);
-									field.setText(String.valueOf(trigonometry.getSideLength(tB, angle, tA)) + " (tangent)");
-								} catch (TrigonometryException e) {
-									ErrorWindow.forException(e);
-								}
-							}else if(b.equals("?")){
-								int shorta = Integer.parseInt(a);
-								try {
-									TrigValue tB = new TrigValue(TrigValue.ADJACENT);
-									TrigValue tA = new TrigValue(TrigValue.OPPOSITE, shorta);
-									field.setText(String.valueOf(trigonometry.getSideLength(tA, angle, tB)) + " (tangent)");
-								} catch (TrigonometryException e) {
-									ErrorWindow.forException(e);
-								}
-							}else throw new IllegalArgumentException("We already know what we want to know.");
-						}else if(a.equals("0")){
-							if(hyp.equals("?")){
-								int shortb = Integer.parseInt(b);
-								try {
-									TrigValue tB = new TrigValue(TrigValue.ADJACENT, shortb);
-									TrigValue tH = new TrigValue(TrigValue.HYPOTENUSE);
-									field.setText(String.valueOf(trigonometry.getSideLength(tB, angle, tH)) + " (cosine)");
-								} catch (TrigonometryException e) {
-									ErrorWindow.forException(e);
-								}
-							}else if(b.equals("?")){
-								int h = Integer.parseInt(hyp);
-								try {
-									TrigValue tB = new TrigValue(TrigValue.ADJACENT);
-									TrigValue tH = new TrigValue(TrigValue.HYPOTENUSE, h);
-									field.setText(String.valueOf(trigonometry.getSideLength(tH, angle, tB)) + " (cosine)");
-								} catch (TrigonometryException e) {
-									ErrorWindow.forException(e);
-								}
-							}else throw new IllegalArgumentException("We already know what we want to know.");
-							
-						}else if(b.equals("0")){
-							if(hyp.equals("?")){
-								int shorta = Integer.parseInt(a);
-								try {
-									TrigValue tA = new TrigValue(TrigValue.OPPOSITE, shorta);
-									TrigValue tH = new TrigValue(TrigValue.HYPOTENUSE);
-									field.setText(String.valueOf(trigonometry.getSideLength(tA, angle, tH)) + " (sine)");
-								} catch (TrigonometryException e) {
-									ErrorWindow.forException(e);
-								}
-							}else if(a.equals("?")){
-								int h = Integer.parseInt(hyp);
-								try {
-									TrigValue tA = new TrigValue(TrigValue.OPPOSITE);
-									TrigValue tH = new TrigValue(TrigValue.HYPOTENUSE, h);
-									field.setText(String.valueOf(trigonometry.getSideLength(tH, angle, tA)) + " (sine)");
-								} catch (TrigonometryException e) {
-									ErrorWindow.forException(e);
-								}
+					}
+					else if (a == "0"){
+						int hypotenuse = Integer.parseInt(hyp);
+						int shortb = Integer.parseInt(b);
+						try{
+							TrigValue tH = new TrigValue(TrigValue.HYPOTENUSE, hypotenuse);
+							TrigValue tB = new TrigValue(TrigValue.ADJACENT, shortb);
+							field.setText(String.valueOf(trigonometry.getAngleSize(tH, tB)) + " (cosine)");
+						}catch (TrigonometryException e){
+							ErrorWindow.forException(e);
+						}
+					}
+					else if (b == "0"){
+						int hypotenuse = Integer.parseInt(hyp);
+						int shorta = Integer.parseInt(a);
+						try{
+							TrigValue tA = new TrigValue(TrigValue.OPPOSITE, shorta);
+							TrigValue tH = new TrigValue(TrigValue.HYPOTENUSE, hypotenuse);
+							field.setText(String.valueOf(trigonometry.getAngleSize(tA, tH)) + " (sine)");
+						}catch (TrigonometryException e){
+							ErrorWindow.forException(e);
+						}
+					}
+				}else{
+					int angle = Integer.parseInt(an);
+					if (angle >= 90) {
+						throw new IllegalArgumentException("Angle is bigger than 90");
+					}
+					if (hyp.equals("0")){
+						if (a.equals("?")){
+							int shortb = Integer.parseInt(b);
+							try{
+								TrigValue tB = new TrigValue(TrigValue.ADJACENT, shortb);
+								TrigValue tA = new TrigValue(TrigValue.OPPOSITE);
+								field.setText(String.valueOf(trigonometry.getSideLength(tB, angle, tA)) + " (tangent)");
+							}catch (TrigonometryException e){
+								ErrorWindow.forException(e);
+							}
+						}else if (b.equals("?")){
+							int shorta = Integer.parseInt(a);
+							try{
+								TrigValue tB = new TrigValue(TrigValue.ADJACENT);
+								TrigValue tA = new TrigValue(TrigValue.OPPOSITE, shorta);
+								field.setText(String.valueOf(trigonometry.getSideLength(tA, angle, tB)) + " (tangent)");
+							}catch (TrigonometryException e){
+								ErrorWindow.forException(e);
+							}
+						}else{
+							throw new IllegalArgumentException("We already know what we want to know.");
+						}
+					}else if (a.equals("0")){
+						if (hyp.equals("?")){
+							int shortb = Integer.parseInt(b);
+							try{
+								TrigValue tB = new TrigValue(TrigValue.ADJACENT, shortb);
+								TrigValue tH = new TrigValue(TrigValue.HYPOTENUSE);
+								field.setText(String.valueOf(trigonometry.getSideLength(tB, angle, tH)) + " (cosine)");
+							}
+							catch (TrigonometryException e){
+								ErrorWindow.forException(e);
+							}
+						}else if (b.equals("?")){
+							int h = Integer.parseInt(hyp);
+							try{
+								TrigValue tB = new TrigValue(TrigValue.ADJACENT);
+								TrigValue tH = new TrigValue(TrigValue.HYPOTENUSE, h);
+								field.setText(String.valueOf(trigonometry.getSideLength(tH, angle, tB)) + " (cosine)");
+							}catch (TrigonometryException e){
+								ErrorWindow.forException(e);
+							}
+						}else{
+							throw new IllegalArgumentException("We already know what we want to know.");
+						}
+					}
+					else if (b.equals("0")) {
+						if (hyp.equals("?")){
+							int shorta = Integer.parseInt(a);
+							try{
+								TrigValue tA = new TrigValue(TrigValue.OPPOSITE, shorta);
+								TrigValue tH = new TrigValue(TrigValue.HYPOTENUSE);
+								field.setText(String.valueOf(trigonometry.getSideLength(tA, angle, tH)) + " (sine)");
+							}catch (TrigonometryException e){
+								ErrorWindow.forException(e);
+							}
+						}else if (a.equals("?"))
+						{
+							int h = Integer.parseInt(hyp);
+							try{
+								TrigValue tA = new TrigValue(TrigValue.OPPOSITE);
+								TrigValue tH = new TrigValue(TrigValue.HYPOTENUSE, h);
+								field.setText(String.valueOf(trigonometry.getSideLength(tH, angle, tA)) + " (sine)");
+							}catch (TrigonometryException e){
+								ErrorWindow.forException(e);
 							}
 						}
 					}
 				}
-				
-			};
+			}
+		};
 	}
 
-	@Override
-	public GUISetting[] getSettings() {
+	public GUISetting[] getSettings(){
 		GUISetting setting = new GUISetting("Show working", "Maths");
 		GUISetting setting2 = new GUISetting("Round", "Maths");
-		return new GUISetting[]{setting, setting2};
+		return new GUISetting[] { setting, setting2 };
 	}
 
-	@Override
-	public void setColour(Color c) {
-		if(isSet){
+	public void setColour(Color c){
+		if (this.isSet){
 			hypField.setForeground(c);
 			adjSmall2Field.setForeground(c);
 			oppSmall1Field.setForeground(c);
 			answerField.setForeground(c);
-			if(angField !=null)angField.setForeground(c);
+			if (angField != null) {
+				angField.setForeground(c);
+			}
 			hypLabel.setForeground(c);
 			adjSmall2Label.setForeground(c);
 			oppSmall1Label.setForeground(c);
-			if(angLabel !=null)angLabel.setForeground(c);
-		}else splitPane.setBackground(c);
+			if (angLabel != null) {
+				angLabel.setForeground(c);
+			}
+		}else{
+			this.splitPane.setBackground(c);
+		}
 	}
 
-	@Override
-	public Color getCurrentColour() {
+	public Color getCurrentColour(){
 		return hypField.getForeground();
 	}
 
+	public String getDescription(){
+		return "This window does math functions. To the left, there are two buttons. Clicking one of those two will open their retrospective calculator. *For trigonometry, the unknown value needs to have a ? input*";
+	}
 }

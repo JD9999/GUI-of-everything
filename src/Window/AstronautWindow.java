@@ -1,7 +1,12 @@
 package Window;
 
+import Date.Astronomical;
+
+import Entry.Entry;
+
+import Settings.GUISetting;
+
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,13 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-
-import Date.Astronomical;
-import Settings.GUISetting;
 
 public class AstronautWindow implements Window{
-	
 	private JTextField hourField;
 	private JTextField dayField;
 	private JTextField weekField;
@@ -31,20 +31,18 @@ public class AstronautWindow implements Window{
 	private JLabel questionLabel;
 	private JButton answerButton;
 	private JTextArea answerField;
-	
-	@Override
-	public String getName() {
+  
+	public String getName(){
 		return "Astronaut";
 	}
-
-	@Override
-	public JInternalFrame getInsideFrame() {
+  
+	public JInternalFrame getInsideFrame(){
 		JInternalFrame frame = new JInternalFrame();
-	    frame.getContentPane().add(getSplitPane());
+		frame.getContentPane().add(getSplitPane());
 		return frame;
 	}
-
-	private Component getSplitPane() {
+  
+	private JSplitPane getSplitPane(){
 		JSplitPane pane = new JSplitPane();
 		pane.setDividerLocation(400);
 		JPanel panel = new JPanel();
@@ -52,89 +50,86 @@ public class AstronautWindow implements Window{
 		JPanel dayPanel = new JPanel();
 		JPanel weekPanel = new JPanel();
 		JPanel monthPanel = new JPanel();
-		panel.setSize(400, 925);
+		panel.setSize(400, Entry.INTERNAL_FRAME_HEIGHT);
 		panel.setLayout(new GridLayout(0, 1));
 		JButton hour = new JButton(), day = new JButton(), week = new JButton(), month = new JButton();
-		JTextField fieldH = new JTextField(), fieldD = new JTextField(), fieldW = new JTextField(), fieldM = new JTextField();
+		JTextField fieldH = new JTextField(),fieldD = new JTextField(), fieldW = new JTextField(), fieldM = new JTextField();
 		fieldH.setText("0");
 		fieldD.setText("0");
 		fieldW.setText("0");
 		fieldM.setText("0");
-		
-		hourField = fieldH;
-		dayField = fieldD;
-		weekField = fieldW;
-		monthField = fieldM;
-		
-		hourButton = hour;
-		dayButton = day;
-		weekButton = week;
-		monthButton = month;
-		
-		hourButton.setSize(300, 200);
-		hourButton.addActionListener(getActionListener(hourField));
-		hourButton.setText("Increment hour");
-		hourPanel.setLayout(new GridLayout(1,0));
-		hourPanel.add(hourButton);
-		hourPanel.add(hourField);
-		
-		dayButton.setSize(300, 200);
-		dayButton.addActionListener(getActionListener(dayField));
-		dayButton.setText("Increment day");
-		dayPanel.setLayout(new GridLayout(1,0));
-		dayPanel.add(dayButton);
-		dayPanel.add(dayField);
-		
-		weekButton.setSize(300, 200);
-		weekButton.addActionListener(getActionListener(weekField));
-		weekButton.setText("Increment week");
-		weekPanel.setLayout(new GridLayout(1,0));
-		weekPanel.add(weekButton);
-		weekPanel.add(weekField);
-		
-		monthButton.setSize(300, 200);
-		monthButton.addActionListener(getActionListener(monthField));
-		monthButton.setText("Increment month");
-		monthPanel.setLayout(new GridLayout(1,0));
-		monthPanel.add(monthButton);
-		monthPanel.add(monthField);
-		
-		panel.add(hourPanel);
-		panel.add(dayPanel);
-		panel.add(weekPanel);
-		panel.add(monthPanel);
-		pane.setLeftComponent(panel);
-		
-		JSplitPane rightPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		JPanel top = new JPanel();
-		top.setLayout(new GridLayout(2,1));
-		JPanel bottom = new JPanel();
-		JLabel label = new JLabel();
-		questionLabel = label;
-		questionLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		questionLabel.setVerticalAlignment(SwingConstants.CENTER);
-		questionLabel.setText("How long is the astronaut behind us?");
-		JButton button = new JButton();
-		answerField = new JTextArea();
-		button.addActionListener(getActionListener(answerField, hourField, dayField, weekField, monthField));
-		button.setText("Work it out!");
-		answerButton = button;
-		top.add(questionLabel);
-		top.add(answerButton);
-		bottom.add(answerField);
-		rightPane.setLeftComponent(top);
-		rightPane.setRightComponent(bottom);
-		pane.setRightComponent(rightPane);	
-			
-		return pane;
+    
+		this.hourField = fieldH;
+		this.dayField = fieldD;
+		this.weekField = fieldW;
+		this.monthField = fieldM;
+    
+		this.hourButton = hour;
+		this.dayButton = day;
+		this.weekButton = week;
+		this.monthButton = month;
+    
+		this.hourButton.setSize(300, 200);
+		this.hourButton.addActionListener(getActionListener(this.hourField));
+		this.hourButton.setText("Increment hour");
+		hourPanel.setLayout(new GridLayout(1, 0));
+		hourPanel.add(this.hourButton);
+		hourPanel.add(this.hourField);
+    
+		this.dayButton.setSize(300, 200);
+		this.dayButton.addActionListener(getActionListener(this.dayField));
+		this.dayButton.setText("Increment day");
+		dayPanel.setLayout(new GridLayout(1, 0));
+    	dayPanel.add(this.dayButton);
+    	dayPanel.add(this.dayField);
+    
+    	this.weekButton.setSize(300, 200);
+    	this.weekButton.addActionListener(getActionListener(this.weekField));
+    	this.weekButton.setText("Increment week");
+    	weekPanel.setLayout(new GridLayout(1, 0));
+    	weekPanel.add(this.weekButton);
+    	weekPanel.add(this.weekField);
+    
+    	this.monthButton.setSize(300, 200);
+    	this.monthButton.addActionListener(getActionListener(this.monthField));
+    	this.monthButton.setText("Increment month");
+    	monthPanel.setLayout(new GridLayout(1, 0));
+    	monthPanel.add(this.monthButton);
+    	monthPanel.add(this.monthField);
+    
+    	panel.add(hourPanel);
+    	panel.add(dayPanel);
+    	panel.add(weekPanel);
+    	panel.add(monthPanel);
+    	pane.setLeftComponent(panel);
+    
+    	JSplitPane rightPane = new JSplitPane(0);
+    	JPanel top = new JPanel();
+    	top.setLayout(new GridLayout(2, 1));
+    	JPanel bottom = new JPanel();
+    	JLabel label = new JLabel();
+    	this.questionLabel = label;
+    	this.questionLabel.setHorizontalAlignment(0);
+    	this.questionLabel.setVerticalAlignment(0);
+    	this.questionLabel.setText("How long is the astronaut behind us?");
+    	JButton button = new JButton();
+    	this.answerField = new JTextArea();
+    	button.addActionListener(getActionListener(this.answerField, this.hourField, this.dayField, this.weekField, this.monthField));
+    	button.setText("Work it out!");
+    	this.answerButton = button;
+    	top.add(this.questionLabel);
+    	top.add(this.answerButton);
+    	bottom.add(this.answerField);
+    	rightPane.setLeftComponent(top);
+    	rightPane.setRightComponent(bottom);
+    	pane.setRightComponent(rightPane);   
+    	return pane;
 	}
-
-	private ActionListener getActionListener(JTextArea answer, JTextField fieldH,
-			JTextField fieldD, JTextField fieldW, JTextField fieldM) {
+  
+	private ActionListener getActionListener(final JTextArea answer, final JTextField fieldH, final JTextField fieldD, final JTextField fieldW, final JTextField fieldM){
 		return new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
+      
+			public void actionPerformed(ActionEvent e){
 				String hrs = fieldH.getText();
 				String dys = fieldD.getText();
 				String wks = fieldW.getText();
@@ -144,59 +139,57 @@ public class AstronautWindow implements Window{
 				int weeks = Integer.parseInt(wks);
 				int months = Integer.parseInt(mns);
 				Astronomical astro = new Astronomical();
-				astro.passHours(hours);
-				astro.passDays(days);
-				astro.passWeeks(weeks);
-				astro.passMonths(months);
-				answer.setText("They are behind us by " + astro.getDifferenceInMilliseconds() + " milliseconds.");
-				fieldH.setText("0");
-				fieldD.setText("0");
-				fieldW.setText("0");
-				fieldM.setText("0");
+    			astro.passHours(hours);
+    			astro.passDays(days);
+    			astro.passWeeks(weeks);
+    			astro.passMonths(months);
+    			answer.setText("They are behind us by " + astro.getDifferenceInMilliseconds() + " milliseconds.");
+    			fieldH.setText("0");
+    			fieldD.setText("0");
+    			fieldW.setText("0");
+    			fieldM.setText("0");
 			}
-			
 		};
 	}
-
-	private ActionListener getActionListener(JTextField field) {
+  
+	private ActionListener getActionListener(final JTextField field){
 		return new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			
+			public void actionPerformed(ActionEvent arg0){
 				String text = field.getText();
 				int n = Integer.parseInt(text);
 				n++;
 				text = String.valueOf(n);
 				field.setText(text);
-				
 			}
-			
 		};
 	}
-
-	@Override
-	public GUISetting[] getSettings() {
+  
+	public GUISetting[] getSettings(){
 		return null;
 	}
-
-	@Override
-	public void setColour(Color c) {
-		hourField.setForeground(c);
-		dayField.setForeground(c);
-		weekField.setForeground(c);
-		monthField.setForeground(c);
-		hourButton.setForeground(c);
-		dayButton.setForeground(c);
-		weekButton.setForeground(c);
-		monthButton.setForeground(c);
-		questionLabel.setForeground(c);
-		answerButton.setForeground(c);
-		answerField.setForeground(c);
+  
+	public void setColour(Color c){
+		this.hourField.setForeground(c);
+		this.dayField.setForeground(c);
+		this.weekField.setForeground(c);
+		this.monthField.setForeground(c);
+		this.hourButton.setForeground(c);
+		this.dayButton.setForeground(c);
+		this.weekButton.setForeground(c);
+		this.monthButton.setForeground(c);
+		this.questionLabel.setForeground(c);
+		this.answerButton.setForeground(c);
+		this.answerField.setForeground(c);
 	}
-
-	@Override
-	public Color getCurrentColour() {
-		return hourField.getForeground();
+  
+	public Color getCurrentColour(){
+		return this.hourField.getForeground();
 	}
-
+  
+	public String getDescription(){
+		return "This window gets the time difference between space and Earth. Press the incrementor buttons to increase the hours, day, weeks or months by 1, or type the value in the box. Then click the \"Work it out!\" button to show the time difference.";
+	}
 }
+
+

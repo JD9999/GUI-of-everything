@@ -191,4 +191,9 @@ public class TimeWindow implements SmallLinkWindow {
 		return text;
 	}
 
+	@Override
+	public String getDescription(){
+    	return "By clicking any of the timezone buttons, you can change the timezone of the application";
+  	}
+
 }

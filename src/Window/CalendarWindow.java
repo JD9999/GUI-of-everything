@@ -439,5 +439,10 @@ public class CalendarWindow implements Window {
 		monthHeading.setBackground(c);
 		table.setBackground(c);
 	}
+
+	@Override
+	public String getDescription(){
+		return "A built-in calendar. On the right-hand side, type the date, event name and event description. Then click add event to add your event. If your event is within the next week, you can pull down the divider to see your event.";
+	}
 	
 }

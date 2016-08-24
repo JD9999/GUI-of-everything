@@ -1,5 +1,8 @@
 package Window;
 
+import Entry.Entry;
+import Settings.GUISetting;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -7,6 +10,8 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -30,18 +35,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import Entry.Entry;
-import Settings.GUISetting;
-
-public class CreateGraphicsWindow implements Window {
+public class CreateGraphicsWindow implements Window{
 
 	private final String RECTANGLE = "rec";
 	private final String CIRCLE = "cir";
 	private final String TRIANGLE = "tri";
 	private final String WHITESPACE = "whi";
-	
 	private final JSplitPane pane = new JSplitPane();
-	private JButton button;
+	private static JButton button;
 	protected JButton currentButton;
 	protected JFrame frame;
 	private static List<JButton> buttonList;
@@ -54,38 +55,33 @@ public class CreateGraphicsWindow implements Window {
 	private static JButton selectionButton;
 
 	public CreateGraphicsWindow(){
-		buttonList = new ArrayList<JButton>();
-		for(int i = 0; i < 9; i++){
-			try {
-				BufferedImage white = ImageIO.read(new File("white.png"));
-				int type = white.getType() == 0? BufferedImage.TYPE_INT_ARGB : white.getType();
-				BufferedImage newWhite = Entry.resizeImage(white, type, 200 - 38, (589 / 3)-38);
-				System.out.println("Width: " + newWhite.getWidth() + " and height: " + newWhite.getHeight());
-				ImageIcon whiteimage = new ImageIcon(newWhite); 
-				whiteimage.setDescription(WHITESPACE);
-				buttonList.add(new JButton(whiteimage));
-			} catch (IOException e) {
-				ErrorWindow.forException(e);
-			}
+		buttonList = new ArrayList<>();
+		for (int i = 0; i < 9; i++) try{
+			BufferedImage white = ImageIO.read(new File("white.png"));
+			int type = white.getType() == 0 ? 2 : white.getType();
+			BufferedImage newWhite = Entry.resizeImage(white, type, 162, 158);
+			System.out.println("Width: " + newWhite.getWidth() + " and height: " + newWhite.getHeight());
+			ImageIcon whiteimage = new ImageIcon(newWhite);
+			whiteimage.setDescription(WHITESPACE);
+			buttonList.add(new JButton(whiteimage));
+		}catch (IOException e){
+			ErrorWindow.forException(e);
 		}
 	}
 
-	@Override
-	public String getName() {
+	public String getName(){
 		return "Create Graphics";
 	}
 
-	@Override
-	public JInternalFrame getInsideFrame() {
+	public JInternalFrame getInsideFrame(){
 		JInternalFrame frame = new JInternalFrame();
 		frame.add(getSplitPane());
 		return frame;
 	}
 
-	private JSplitPane getSplitPane() {	
-		
+	private JSplitPane getSplitPane(){
 		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout(3,2));
+		panel.setLayout(new GridLayout(3, 2));
 		try{
 			System.out.println("Setting up right component!");
 			BufferedImage white = ImageIO.read(new File("white.png"));
@@ -94,13 +90,13 @@ public class CreateGraphicsWindow implements Window {
 			whitespace = new JButton(whiteimage);
 			whitespace.addActionListener(getSelectionListener(whitespace));
 			BufferedImage rect = ImageIO.read(new File("Rectangle.png"));
-			ImageIcon rec = new ImageIcon(getCroppedImage(rect, 0));
+			ImageIcon rec = new ImageIcon(getCroppedImage(rect, 0.0D));
 			rec.setDescription(RECTANGLE);
 			BufferedImage cir = ImageIO.read(new File("Circle.png"));
-			ImageIcon circle = new ImageIcon(getCroppedImage(cir, 0));
+			ImageIcon circle = new ImageIcon(getCroppedImage(cir, 0.0D));
 			circle.setDescription(CIRCLE);
 			BufferedImage tri = ImageIO.read(new File("Triangle.png"));
-			ImageIcon triangle = new ImageIcon(getCroppedImage(tri, 0));
+			ImageIcon triangle = new ImageIcon(getCroppedImage(tri, 0.0D));
 			triangle.setDescription(TRIANGLE);
 			rectangleShape = new JButton(rec);
 			rectangleShape.addActionListener(getSelectionListener(rectangleShape));
@@ -112,7 +108,7 @@ public class CreateGraphicsWindow implements Window {
 			panel.add(circleShape);
 			panel.add(triangleShape);
 			panel.add(whitespace);
-		}catch(IOException e){
+		}catch (IOException e){
 			ErrorWindow.forException(e);
 		}
 		JPanel textPanel = new JPanel();
@@ -126,130 +122,168 @@ public class CreateGraphicsWindow implements Window {
 		button = new JButton("Add shape");
 		button.addActionListener(getAddListener());
 		panel.add(button);
-		pane.setRightComponent(panel);
-		
+		this.pane.setRightComponent(panel);
+
 		System.out.println("Setting up left component!");
-		pane.setDividerLocation(600);
-		JPanel overseer = new JPanel();	
-		JPanel drawingPanel = getDrawingPanel(whitespace, buttonList);
+		this.pane.setDividerLocation(600);
+		JPanel overseer = new JPanel();
+		JPanel drawingPanel = getDrawingPanel();
 		overseer.add(drawingPanel);
-		pane.setLeftComponent(overseer);
-		pane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, getPropertyChangeListener());
-		return pane;
-		
+		this.pane.setLeftComponent(overseer);
+		this.pane.addPropertyChangeListener("dividerLocation", getPropertyChangeListener());
+		return this.pane;
 	}
 
-	private PropertyChangeListener getPropertyChangeListener() {
+	private PropertyChangeListener getPropertyChangeListener(){
 		return new PropertyChangeListener(){
-
-			@Override
-			public void propertyChange(PropertyChangeEvent event) {
-				System.out.println("Divider location at: " + pane.getDividerLocation());
+			public void propertyChange(PropertyChangeEvent event){
+				System.out.println("Divider location at: " + CreateGraphicsWindow.this.pane.getDividerLocation());
 			}
-			
 		};
 	}
 
-	private ActionListener getSelectionListener(JButton button) {
+	private ActionListener getSelectionListener(final JButton button){
 		return new ActionListener(){
-			
 			public void actionPerformed(ActionEvent event){
-				selectionButton = button;
+				CreateGraphicsWindow.selectionButton = button;
 			}
-			
 		};
 	}
 
-	private JPanel getDrawingPanel(JButton whiteButton, List<JButton> buttons) {
+	private JPanel getDrawingPanel(){
 		JPanel panel = new JPanel();
 		panel.setSize(600, Entry.INTERNAL_FRAME_HEIGHT);
-		panel.setLayout(new GridLayout(3,3));
-		for(int i = 0; i < buttons.size(); i++){
+		panel.setLayout(new GridLayout(3, 3));
+		for (int i = 0; i < buttonList.size(); i++){
 			System.out.println("Index: " + i);
-			JButton button = buttons.get(i);
+			JButton button = (JButton)buttonList.get(i);
 			button.addActionListener(getImgListener(button));
 			panel.add(button);
 		}
 		return panel;
 	}
 
-	private ActionListener getImgListener(JButton button) {
+	private ActionListener getImgListener(final JButton button){
 		return new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				currentButton = button;
-				openEditFrame();
+			public void actionPerformed(ActionEvent event){
+				CreateGraphicsWindow.this.currentButton = button;
+				CreateGraphicsWindow.this.openEditFrame();
 			}
-			
 		};
 	}
 
 	protected void openEditFrame(){
-		if(frame == null) openAndLinkFrame();
-		else if(frame.isVisible()) return;
-		else if(frame.isShowing()) return;
-		else openAndLinkFrame();
-		return;
+		if (frame == null){
+			openAndLinkFrame();
+		}
 	}
-	
-	private void openAndLinkFrame() {
+
+	private void openAndLinkFrame(){
 		SwingUtilities.invokeLater(new Runnable(){
 
-			@Override
-			public void run() {
-				frame = new JFrame();
-				frame.setAlwaysOnTop(true);
+			public void run(){
+				CreateGraphicsWindow.this.frame = new JFrame();
+				CreateGraphicsWindow.this.frame.setAlwaysOnTop(true);
+				frame.addWindowListener(getWindowListener());
 				JPanel shapePanel = new JPanel();
-				shapePanel.setLayout(new GridLayout(4,1));
-				JButton recShape = rectangleShape;
-				JButton cirShape = circleShape;
-				JButton triShape = triangleShape;
-				JButton whiteSpace = whitespace;
+				shapePanel.setLayout(new GridLayout(4, 1));
+				JButton recShape = CreateGraphicsWindow.rectangleShape;
+				JButton cirShape = CreateGraphicsWindow.circleShape;
+				JButton triShape = CreateGraphicsWindow.triangleShape;
+				JButton whiteSpace = CreateGraphicsWindow.whitespace;
 				for(ActionListener al : recShape.getActionListeners()) recShape.removeActionListener(al);
 				for(ActionListener al : cirShape.getActionListeners()) cirShape.removeActionListener(al);
 				for(ActionListener al : triShape.getActionListeners()) triShape.removeActionListener(al);
 				for(ActionListener al : whiteSpace.getActionListeners()) whiteSpace.removeActionListener(al);
-				String xPos = getXPos(currentButton);
+				String xPos = CreateGraphicsWindow.this.getXPos(CreateGraphicsWindow.this.currentButton);
 				xPos = xPos.substring(0, xPos.indexOf('.'));
 				System.out.println(xPos);
-				row.setText(xPos);
-				String yPos = getYPos(currentButton);
+				String yPos = CreateGraphicsWindow.this.getYPos(CreateGraphicsWindow.this.currentButton);
 				yPos = yPos.substring(0, yPos.indexOf('.'));
 				System.out.println(yPos);
-				column.setText(yPos);
+				CreateGraphicsWindow.row.setText(yPos);
+				CreateGraphicsWindow.column.setText(xPos);
+				recShape.addActionListener(CreateGraphicsWindow.this.getExternalSelectionListener(recShape));
+				cirShape.addActionListener(CreateGraphicsWindow.this.getExternalSelectionListener(cirShape));
+				triShape.addActionListener(CreateGraphicsWindow.this.getExternalSelectionListener(triShape));
+				whiteSpace.addActionListener(CreateGraphicsWindow.this.getExternalSelectionListener(whiteSpace));
 				shapePanel.add(recShape);
 				shapePanel.add(cirShape);
 				shapePanel.add(triShape);
 				shapePanel.add(whiteSpace);
 				JPanel colourRotatePanel = new JPanel();
-				JPanel rotatePanel = getRotatePanel();
+				JPanel rotatePanel = CreateGraphicsWindow.this.getRotatePanel();
 				colourRotatePanel.add(rotatePanel);
-				JPanel simpleColourChanger = getSimpleColourChanger();
+				JPanel simpleColourChanger = CreateGraphicsWindow.this.getSimpleColourChanger();
 				colourRotatePanel.add(simpleColourChanger);
-				frame.setLayout(new GridLayout(1,2));
-				frame.add(colourRotatePanel);
-				frame.add(shapePanel);
-				frame.setSize(600, 600);
-				frame.setVisible(true);
+				CreateGraphicsWindow.this.frame.setLayout(new GridLayout(1, 2));
+				CreateGraphicsWindow.this.frame.add(colourRotatePanel);
+				CreateGraphicsWindow.this.frame.add(shapePanel);
+				CreateGraphicsWindow.this.frame.setSize(600, 600);
+				CreateGraphicsWindow.this.frame.setVisible(true);
 			}
-			
 		});
 	}
 
-	protected String getYPos(JButton button) {
+	protected WindowListener getWindowListener() {
+		return new WindowListener(){
+
+			@Override
+			public void windowActivated(WindowEvent arg0) {
+			}
+
+			@Override
+			public void windowClosed(WindowEvent arg0) {
+				frame = null;
+			}
+
+			@Override
+			public void windowClosing(WindowEvent arg0) {			
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent arg0) {
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent arg0) {
+			}
+
+			@Override
+			public void windowIconified(WindowEvent arg0) {
+			}
+
+			@Override
+			public void windowOpened(WindowEvent arg0) {
+			}
+
+		};
+	}
+
+	protected ActionListener getExternalSelectionListener(final JButton button){
+		return new ActionListener(){
+
+			public void actionPerformed(ActionEvent arg0){
+				CreateGraphicsWindow.selectionButton = button;
+				CreateGraphicsWindow.button.doClick();
+			}
+
+		};
+	}
+
+	protected String getYPos(JButton button){
 		Point p = button.getLocation();
 		int height = button.getHeight();
-		return String.valueOf((p.getY() / (height /3)) / 3);
+		return String.valueOf(p.getY() / (height / 3) / 3.0D);
 	}
 
-	protected String getXPos(JButton button) {
+	protected String getXPos(JButton button){
 		Point p = button.getLocation();
 		int width = button.getWidth();
-		return String.valueOf((p.getX() / (width / 3)) / 3);
+		return String.valueOf(p.getX() / (width / 3) / 3.0D);
 	}
 
-	protected JPanel getRotatePanel() {
+	protected JPanel getRotatePanel(){
 		JPanel panel = new JPanel();
 		JLabel label = new JLabel();
 		label.setText("Rotate:");
@@ -262,7 +296,7 @@ public class CreateGraphicsWindow implements Window {
 		return panel;
 	}
 
-	protected JPanel getSimpleColourChanger() {
+	protected JPanel getSimpleColourChanger(){
 		JPanel panel = new JPanel();
 		ButtonGroup group = new ButtonGroup();
 		JButton redButton = new JButton();
@@ -277,7 +311,7 @@ public class CreateGraphicsWindow implements Window {
 		JButton yellowButton = new JButton();
 		yellowButton.addActionListener(getColourListener(Color.YELLOW));
 		yellowButton.setText("Yellow");
-		//Light green is not defined, therefore we need to define it.
+		//Since light green is undefined, we have to define it
 		Color lightGreen = new Color(102, 255, 102);
 		JButton lightGreenButton = new JButton();
 		lightGreenButton.addActionListener(getColourListener(lightGreen));
@@ -297,7 +331,7 @@ public class CreateGraphicsWindow implements Window {
 		JButton whiteButton = new JButton();
 		whiteButton.addActionListener(getColourListener(Color.WHITE));
 		whiteButton.setText("White");
-		//Brown is not defined, therefore we need to define it
+
 		Color brown = new Color(102, 51, 0);
 		JButton brownButton = new JButton();
 		brownButton.addActionListener(getColourListener(brown));
@@ -305,7 +339,7 @@ public class CreateGraphicsWindow implements Window {
 		JButton blackButton = new JButton();
 		blackButton.addActionListener(getColourListener(Color.BLACK));
 		blackButton.setText("Black");
-		
+
 		group.add(redButton);
 		group.add(orangeButton);
 		group.add(yellowButton);
@@ -318,8 +352,8 @@ public class CreateGraphicsWindow implements Window {
 		group.add(whiteButton);
 		group.add(brownButton);
 		group.add(blackButton);
-		
-		panel.setLayout(new GridLayout(4,3));
+
+		panel.setLayout(new GridLayout(4, 3));
 		panel.add(redButton);
 		panel.add(orangeButton);
 		panel.add(yellowButton);
@@ -332,150 +366,150 @@ public class CreateGraphicsWindow implements Window {
 		panel.add(whiteButton);
 		panel.add(brownButton);
 		panel.add(blackButton);
-		
+
 		return panel;
 	}
 
-	private ActionListener getColourListener(Color colour) {
+	private ActionListener getColourListener(final Color colour){
 		return new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				Graphics g = openButton();
-				g.setColor(colour);
-				repaint();
-			}
 			
+			public void actionPerformed(ActionEvent arg0){
+				Graphics g = CreateGraphicsWindow.this.openButton();
+				g.setColor(colour);
+				CreateGraphicsWindow.this.repaint();
+			}
 		};
 	}
 
-	protected void repaint() {
-		Entry.requestRepaint(this);
+	protected void repaint(){
+		this.frame.dispose();
+		this.pane.setLeftComponent(getDrawingPanel());
 	}
 
-	private Graphics openButton() {
-		Icon icon = currentButton.getIcon();
-		if(icon instanceof ImageIcon){
+	private Graphics openButton(){
+		Icon icon = this.currentButton.getIcon();
+		if (icon instanceof ImageIcon){
 			ImageIcon imageIcon = (ImageIcon)icon;
 			return imageIcon.getImage().getGraphics();
-		}else ErrorWindow.forException(new RuntimeException("Button's icon is not an ImageIcon!"));
+		}
+		ErrorWindow.forException(new RuntimeException("Button's icon is not an ImageIcon!"));
 		return null;
 	}
 
-	protected DocumentListener getDocumentListener(JTextField field) {
+	protected DocumentListener getDocumentListener(final JTextField field){
 		return new DocumentListener(){
-
-			@Override
-			public void changedUpdate(DocumentEvent arg0) {
-				rotate(field);
-			}
-
-			@Override
-			public void insertUpdate(DocumentEvent arg0) {
-				rotate(field);
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent arg0) {
-				rotate(field);
-			}
 			
+			public void changedUpdate(DocumentEvent arg0){
+				CreateGraphicsWindow.this.rotate(field);
+			}
+
+			public void insertUpdate(DocumentEvent arg0){
+				CreateGraphicsWindow.this.rotate(field);
+			}
+
+			public void removeUpdate(DocumentEvent arg0){
+				CreateGraphicsWindow.this.rotate(field);
+			}
 		};
 	}
 
 	private void rotate(JTextField field){
 		Graphics g = openButton();
-		if(g instanceof Graphics2D){
+		if ((g instanceof Graphics2D)){
 			Graphics2D g2d = (Graphics2D)g;
 			String text = field.getText();
 			int rotation = Integer.parseInt(text);
 			g2d.rotate(Math.toRadians(rotation));
 			repaint();
-		}else ErrorWindow.forException(new RuntimeException("Button's graphics is not an instance of Graphics2D!"));
+		}else{
+			ErrorWindow.forException(new RuntimeException("Button's graphics is not an instance of Graphics2D!"));
+		}
 	}
 
-	private ActionListener getAddListener() {
+	private ActionListener getAddListener(){
 		return new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent event) {
+			
+			public void actionPerformed(ActionEvent event){
 				int row = Integer.parseInt(CreateGraphicsWindow.row.getText());
 				int column = Integer.parseInt(CreateGraphicsWindow.column.getText());
 				int searchIndex = 3 * row + column;
-				buttonList.remove(searchIndex);
-				buttonList.add(searchIndex, selectionButton);
-				repaint();
+				CreateGraphicsWindow.buttonList.remove(searchIndex);
+				CreateGraphicsWindow.buttonList.add(searchIndex, CreateGraphicsWindow.selectionButton);
+				CreateGraphicsWindow.this.repaint();
 			}
-
 		};
 	}
 
-	@Override
-	public GUISetting[] getSettings() {
-		return new GUISetting[]{};
+	public GUISetting[] getSettings(){
+		return new GUISetting[0];
 	}
 
-	@Override
-	public void setColour(Color c) {
+	public void setColour(Color c){
 		button.setForeground(c);
 	}
 
-	@Override
-	public Color getCurrentColour() {
+	public Color getCurrentColour(){
 		return button.getForeground();
 	}
 
-	
-	//Copied on Stack Overflow - http://stackoverflow.com/questions/10678015/how-to-auto-crop-an-image-white-border-in-java
-	private BufferedImage getCroppedImage(BufferedImage source, double tolerance) {
-		   // Get our top-left pixel color as our "baseline" for cropping
-		   int baseColor = source.getRGB(0, 0);
+	private BufferedImage getCroppedImage(BufferedImage source, double tolerance){
+		int baseColor = source.getRGB(0, 0);
 
-		   int width = source.getWidth();
-		   int height = source.getHeight();
+		int width = source.getWidth();
+		int height = source.getHeight();
 
-		   int topY = Integer.MAX_VALUE, topX = Integer.MAX_VALUE;
-		   int bottomY = -1, bottomX = -1;
-		   for(int y=0; y<height; y++) {
-		      for(int x=0; x<width; x++) {
-		         if (colorWithinTolerance(baseColor, source.getRGB(x, y), tolerance)) {
-		            if (x < topX) topX = x;
-		            if (y < topY) topY = y;
-		            if (x > bottomX) bottomX = x;
-		            if (y > bottomY) bottomY = y;
-		         }
-		      }
-		   }
-
-		   BufferedImage destination = new BufferedImage( (bottomX-topX+1), 
-		                 (bottomY-topY+1), BufferedImage.TYPE_INT_ARGB);
-
-		   destination.getGraphics().drawImage(source, 0, 0, 
-		               destination.getWidth(), destination.getHeight(), 
-		               topX, topY, bottomX, bottomY, null);
-
-		   return destination;
+		int topY = Integer.MAX_VALUE;int topX = Integer.MAX_VALUE;
+		int bottomY = -1;int bottomX = -1;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				if (colorWithinTolerance(baseColor, source.getRGB(x, y), tolerance)){
+					if (x < topX) {
+						topX = x;
+					}
+					if (y < topY) {
+						topY = y;
+					}
+					if (x > bottomX) {
+						bottomX = x;
+					}
+					if (y > bottomY) {
+						bottomY = y;
+					}
+				}
+			}
 		}
+		BufferedImage destination = new BufferedImage(bottomX - topX + 1, 
+				bottomY - topY + 1, 2);
 
-		private boolean colorWithinTolerance(int a, int b, double tolerance) {
-		    int aAlpha  = (int)((a & 0xFF000000) >>> 24);   // Alpha level
-		    int aRed    = (int)((a & 0x00FF0000) >>> 16);   // Red level
-		    int aGreen  = (int)((a & 0x0000FF00) >>> 8);    // Green level
-		    int aBlue   = (int)(a & 0x000000FF);            // Blue level
+		destination.getGraphics().drawImage(source, 0, 0, 
+				destination.getWidth(), destination.getHeight(), 
+				topX, topY, bottomX, bottomY, null);
 
-		    int bAlpha  = (int)((b & 0xFF000000) >>> 24);   // Alpha level
-		    int bRed    = (int)((b & 0x00FF0000) >>> 16);   // Red level
-		    int bGreen  = (int)((b & 0x0000FF00) >>> 8);    // Green level
-		    int bBlue   = (int)(b & 0x000000FF);            // Blue level
+		return destination;
+	}
 
-		    double distance = Math.sqrt((aAlpha-bAlpha)*(aAlpha-bAlpha) +
-		                                (aRed-bRed)*(aRed-bRed) +
-		                                (aGreen-bGreen)*(aGreen-bGreen) +
-		                                (aBlue-bBlue)*(aBlue-bBlue));
+	private boolean colorWithinTolerance(int a, int b, double tolerance){
+		int aAlpha = (a & 0xFF000000) >>> 24;
+		int aRed = (a & 0xFF0000) >>> 16;
+		int aGreen = (a & 0xFF00) >>> 8;
+		int aBlue = a & 0xFF;
 
-		    // 510.0 is the maximum distance between two colors 
-		    // (0,0,0,0 -> 255,255,255,255)
-		    double percentAway = distance / 510.0d;     
+		int bAlpha = (b & 0xFF000000) >>> 24;
+		int bRed = (b & 0xFF0000) >>> 16;
+		int bGreen = (b & 0xFF00) >>> 8;
+		int bBlue = b & 0xFF;
 
-		    return (percentAway > tolerance);
-		}
+		double distance = Math.sqrt((aAlpha - bAlpha) * (aAlpha - bAlpha) + 
+				(aRed - bRed) * (aRed - bRed) + 
+				(aGreen - bGreen) * (aGreen - bGreen) + 
+				(aBlue - bBlue) * (aBlue - bBlue));
+
+		double percentAway = distance / 510.0D;
+
+		return percentAway > tolerance;
+	}
+
+	public String getDescription(){
+		return "This window creates basic graphics using basic shapes. You can rotate, change the colour of the shape, and change the shape entirely.";
+	}
 }

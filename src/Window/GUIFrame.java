@@ -10,5 +10,6 @@ public interface GUIFrame {
 	public JInternalFrame getInsideFrame();
 	public void setColour(Color c);
 	public String getName();
+	public String getDescription();
 	
 }
