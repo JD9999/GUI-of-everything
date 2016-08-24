@@ -4,6 +4,7 @@ import Entry.Entry;
 import Settings.GUISetting;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -45,6 +46,7 @@ public class CreateGraphicsWindow implements Window{
 	private static JButton button;
 	protected JButton currentButton;
 	protected JFrame frame;
+	protected JButton changeButton;
 	private static List<JButton> buttonList;
 	private static JTextField row;
 	private static JTextField column;
@@ -52,21 +54,21 @@ public class CreateGraphicsWindow implements Window{
 	private static JButton circleShape;
 	private static JButton triangleShape;
 	private static JButton whitespace;
-	private static JButton selectionButton;
+	private static boolean inLaunch;
 
 	public CreateGraphicsWindow(){
 		buttonList = new ArrayList<>();
-		for (int i = 0; i < 9; i++) try{
-			BufferedImage white = ImageIO.read(new File("white.png"));
-			int type = white.getType() == 0 ? 2 : white.getType();
-			BufferedImage newWhite = Entry.resizeImage(white, type, 162, 158);
-			System.out.println("Width: " + newWhite.getWidth() + " and height: " + newWhite.getHeight());
-			ImageIcon whiteimage = new ImageIcon(newWhite);
-			whiteimage.setDescription(WHITESPACE);
-			buttonList.add(new JButton(whiteimage));
-		}catch (IOException e){
-			ErrorWindow.forException(e);
-		}
+		for (int i = 0; i < 9; i++) 
+			try{
+				BufferedImage white = ImageIO.read(new File("white.png"));
+				int type = white.getType() == 0 ? 2 : white.getType();
+				BufferedImage newWhite = Entry.resizeImage(white, type, 162, 158);
+				ImageIcon whiteimage = new ImageIcon(newWhite);
+				whiteimage.setDescription(WHITESPACE);
+				buttonList.add(new JButton(whiteimage));
+			}catch (IOException e){
+				ErrorWindow.forException(e);
+			}
 	}
 
 	public String getName(){
@@ -122,22 +124,24 @@ public class CreateGraphicsWindow implements Window{
 		button = new JButton("Add shape");
 		button.addActionListener(getAddListener());
 		panel.add(button);
-		this.pane.setRightComponent(panel);
+		pane.setRightComponent(panel);
 
 		System.out.println("Setting up left component!");
-		this.pane.setDividerLocation(600);
+		pane.setDividerLocation(600);
 		JPanel overseer = new JPanel();
+		overseer.setMinimumSize(new Dimension(600, Entry.INTERNAL_FRAME_HEIGHT));
 		JPanel drawingPanel = getDrawingPanel();
 		overseer.add(drawingPanel);
-		this.pane.setLeftComponent(overseer);
-		this.pane.addPropertyChangeListener("dividerLocation", getPropertyChangeListener());
-		return this.pane;
+		pane.setLeftComponent(overseer);
+		pane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, getPropertyChangeListener());
+		return pane;
 	}
 
 	private PropertyChangeListener getPropertyChangeListener(){
 		return new PropertyChangeListener(){
 			public void propertyChange(PropertyChangeEvent event){
-				System.out.println("Divider location at: " + CreateGraphicsWindow.this.pane.getDividerLocation());
+				System.out.println("Divider location at: " + pane.getDividerLocation());
+				pane.setDividerLocation(600);
 			}
 		};
 	}
@@ -145,18 +149,17 @@ public class CreateGraphicsWindow implements Window{
 	private ActionListener getSelectionListener(final JButton button){
 		return new ActionListener(){
 			public void actionPerformed(ActionEvent event){
-				CreateGraphicsWindow.selectionButton = button;
+				changeButton = button;
 			}
 		};
 	}
 
 	private JPanel getDrawingPanel(){
 		JPanel panel = new JPanel();
-		panel.setSize(600, Entry.INTERNAL_FRAME_HEIGHT);
 		panel.setLayout(new GridLayout(3, 3));
 		for (int i = 0; i < buttonList.size(); i++){
 			System.out.println("Index: " + i);
-			JButton button = (JButton)buttonList.get(i);
+			JButton button = buttonList.get(i);
 			button.addActionListener(getImgListener(button));
 			panel.add(button);
 		}
@@ -166,24 +169,26 @@ public class CreateGraphicsWindow implements Window{
 	private ActionListener getImgListener(final JButton button){
 		return new ActionListener(){
 			public void actionPerformed(ActionEvent event){
-				CreateGraphicsWindow.this.currentButton = button;
-				CreateGraphicsWindow.this.openEditFrame();
+				currentButton = button;
+				System.out.println("Opening frame!");
+				openEditFrame();
 			}
 		};
 	}
 
 	protected void openEditFrame(){
-		if (frame == null){
+		if (!inLaunch){
 			openAndLinkFrame();
-		}
+		}else System.out.println("Window already in launch!");
 	}
 
 	private void openAndLinkFrame(){
+		inLaunch = true;
 		SwingUtilities.invokeLater(new Runnable(){
 
 			public void run(){
-				CreateGraphicsWindow.this.frame = new JFrame();
-				CreateGraphicsWindow.this.frame.setAlwaysOnTop(true);
+				frame = new JFrame();
+				frame.setAlwaysOnTop(true);
 				frame.addWindowListener(getWindowListener());
 				JPanel shapePanel = new JPanel();
 				shapePanel.setLayout(new GridLayout(4, 1));
@@ -195,35 +200,36 @@ public class CreateGraphicsWindow implements Window{
 				for(ActionListener al : cirShape.getActionListeners()) cirShape.removeActionListener(al);
 				for(ActionListener al : triShape.getActionListeners()) triShape.removeActionListener(al);
 				for(ActionListener al : whiteSpace.getActionListeners()) whiteSpace.removeActionListener(al);
-				String xPos = CreateGraphicsWindow.this.getXPos(CreateGraphicsWindow.this.currentButton);
+				String xPos = getXPos(currentButton);
 				xPos = xPos.substring(0, xPos.indexOf('.'));
 				System.out.println(xPos);
-				String yPos = CreateGraphicsWindow.this.getYPos(CreateGraphicsWindow.this.currentButton);
+				String yPos = getYPos(currentButton);
 				yPos = yPos.substring(0, yPos.indexOf('.'));
 				System.out.println(yPos);
 				CreateGraphicsWindow.row.setText(yPos);
 				CreateGraphicsWindow.column.setText(xPos);
-				recShape.addActionListener(CreateGraphicsWindow.this.getExternalSelectionListener(recShape));
-				cirShape.addActionListener(CreateGraphicsWindow.this.getExternalSelectionListener(cirShape));
-				triShape.addActionListener(CreateGraphicsWindow.this.getExternalSelectionListener(triShape));
-				whiteSpace.addActionListener(CreateGraphicsWindow.this.getExternalSelectionListener(whiteSpace));
+				recShape.addActionListener(getExternalSelectionListener(recShape));
+				cirShape.addActionListener(getExternalSelectionListener(cirShape));
+				triShape.addActionListener(getExternalSelectionListener(triShape));
+				whiteSpace.addActionListener(getExternalSelectionListener(whiteSpace));
 				shapePanel.add(recShape);
 				shapePanel.add(cirShape);
 				shapePanel.add(triShape);
 				shapePanel.add(whiteSpace);
 				JPanel colourRotatePanel = new JPanel();
-				JPanel rotatePanel = CreateGraphicsWindow.this.getRotatePanel();
+				JPanel rotatePanel = getRotatePanel();
 				colourRotatePanel.add(rotatePanel);
-				JPanel simpleColourChanger = CreateGraphicsWindow.this.getSimpleColourChanger();
+				JPanel simpleColourChanger = getSimpleColourChanger();
 				colourRotatePanel.add(simpleColourChanger);
-				CreateGraphicsWindow.this.frame.setLayout(new GridLayout(1, 2));
-				CreateGraphicsWindow.this.frame.add(colourRotatePanel);
-				CreateGraphicsWindow.this.frame.add(shapePanel);
-				CreateGraphicsWindow.this.frame.setSize(600, 600);
-				CreateGraphicsWindow.this.frame.setVisible(true);
+				frame.setLayout(new GridLayout(1, 2));
+				frame.add(colourRotatePanel);
+				frame.add(shapePanel);
+				frame.setSize(600, 600);
+				frame.setVisible(true);
 			}
 		});
 	}
+
 
 	protected WindowListener getWindowListener() {
 		return new WindowListener(){
@@ -234,11 +240,11 @@ public class CreateGraphicsWindow implements Window{
 
 			@Override
 			public void windowClosed(WindowEvent arg0) {
-				frame = null;
+				inLaunch = false;
 			}
 
 			@Override
-			public void windowClosing(WindowEvent arg0) {			
+			public void windowClosing(WindowEvent arg0) {
 			}
 
 			@Override
@@ -250,13 +256,13 @@ public class CreateGraphicsWindow implements Window{
 			}
 
 			@Override
-			public void windowIconified(WindowEvent arg0) {
+			public void windowIconified(WindowEvent arg0) {	
 			}
 
 			@Override
 			public void windowOpened(WindowEvent arg0) {
 			}
-
+			
 		};
 	}
 
@@ -264,7 +270,7 @@ public class CreateGraphicsWindow implements Window{
 		return new ActionListener(){
 
 			public void actionPerformed(ActionEvent arg0){
-				CreateGraphicsWindow.selectionButton = button;
+				changeButton = button;
 				CreateGraphicsWindow.button.doClick();
 			}
 
@@ -302,43 +308,67 @@ public class CreateGraphicsWindow implements Window{
 		JButton redButton = new JButton();
 		redButton.addActionListener(getColourListener(Color.RED));
 		redButton.setText("Red");
+		redButton.setForeground(Color.RED);
+		redButton.setBackground(Color.WHITE);
 		JButton orangeButton = new JButton();
 		orangeButton.addActionListener(getColourListener(Color.ORANGE));
 		orangeButton.setText("Orange");
+		orangeButton.setForeground(Color.ORANGE);
+		orangeButton.setBackground(Color.WHITE);
 		JButton pinkButton = new JButton();
 		pinkButton.addActionListener(getColourListener(Color.PINK));
 		pinkButton.setText("Pink");
+		pinkButton.setForeground(Color.PINK);
+		pinkButton.setBackground(Color.BLACK);
 		JButton yellowButton = new JButton();
 		yellowButton.addActionListener(getColourListener(Color.YELLOW));
 		yellowButton.setText("Yellow");
+		yellowButton.setForeground(Color.YELLOW);
+		yellowButton.setBackground(Color.BLACK);
 		//Since light green is undefined, we have to define it
 		Color lightGreen = new Color(102, 255, 102);
 		JButton lightGreenButton = new JButton();
 		lightGreenButton.addActionListener(getColourListener(lightGreen));
 		lightGreenButton.setText("Light green");
+		lightGreenButton.setForeground(lightGreen);
+		lightGreenButton.setBackground(Color.WHITE);
 		JButton greenButton = new JButton();
 		greenButton.addActionListener(getColourListener(Color.GREEN));
 		greenButton.setText("Green");
+		greenButton.setForeground(Color.GREEN);
+		greenButton.setBackground(Color.WHITE);
 		JButton lightBlueButton = new JButton();
 		lightBlueButton.addActionListener(getColourListener(Color.CYAN));
 		lightBlueButton.setText("Light blue");
+		lightBlueButton.setForeground(Color.CYAN);
+		lightBlueButton.setBackground(Color.BLACK);
 		JButton blueButton = new JButton();
 		blueButton.addActionListener(getColourListener(Color.BLUE));
 		blueButton.setText("Blue");
+		blueButton.setForeground(Color.BLUE);
+		blueButton.setBackground(Color.WHITE);
 		JButton purpleButton = new JButton();
 		purpleButton.addActionListener(getColourListener(Color.MAGENTA));
 		purpleButton.setText("Purple");
+		purpleButton.setForeground(Color.MAGENTA);
+		purpleButton.setBackground(Color.WHITE);
 		JButton whiteButton = new JButton();
 		whiteButton.addActionListener(getColourListener(Color.WHITE));
 		whiteButton.setText("White");
-
+		whiteButton.setForeground(Color.WHITE);
+		whiteButton.setBackground(Color.BLACK);
+		//Since brown is undefined, we must define it
 		Color brown = new Color(102, 51, 0);
 		JButton brownButton = new JButton();
 		brownButton.addActionListener(getColourListener(brown));
 		brownButton.setText("Brown");
+		brownButton.setForeground(brown);
+		brownButton.setBackground(Color.WHITE);
 		JButton blackButton = new JButton();
 		blackButton.addActionListener(getColourListener(Color.BLACK));
 		blackButton.setText("Black");
+		blackButton.setForeground(Color.BLACK);
+		blackButton.setBackground(Color.WHITE);
 
 		group.add(redButton);
 		group.add(orangeButton);
@@ -374,20 +404,21 @@ public class CreateGraphicsWindow implements Window{
 		return new ActionListener(){
 			
 			public void actionPerformed(ActionEvent arg0){
-				Graphics g = CreateGraphicsWindow.this.openButton();
+				Graphics g = openButton();
 				g.setColor(colour);
-				CreateGraphicsWindow.this.repaint();
+				button.doClick();
+				repaint();
 			}
 		};
 	}
 
 	protected void repaint(){
-		this.frame.dispose();
-		this.pane.setLeftComponent(getDrawingPanel());
+		if(frame!=null)frame.dispose();
+		pane.setLeftComponent(getDrawingPanel());
 	}
 
 	private Graphics openButton(){
-		Icon icon = this.currentButton.getIcon();
+		Icon icon = currentButton.getIcon();
 		if (icon instanceof ImageIcon){
 			ImageIcon imageIcon = (ImageIcon)icon;
 			return imageIcon.getImage().getGraphics();
@@ -400,15 +431,15 @@ public class CreateGraphicsWindow implements Window{
 		return new DocumentListener(){
 			
 			public void changedUpdate(DocumentEvent arg0){
-				CreateGraphicsWindow.this.rotate(field);
+				rotate(field);
 			}
 
 			public void insertUpdate(DocumentEvent arg0){
-				CreateGraphicsWindow.this.rotate(field);
+				rotate(field);
 			}
 
 			public void removeUpdate(DocumentEvent arg0){
-				CreateGraphicsWindow.this.rotate(field);
+				rotate(field);
 			}
 		};
 	}
@@ -430,12 +461,20 @@ public class CreateGraphicsWindow implements Window{
 		return new ActionListener(){
 			
 			public void actionPerformed(ActionEvent event){
+				List<JButton> buttons = new ArrayList<>();
 				int row = Integer.parseInt(CreateGraphicsWindow.row.getText());
 				int column = Integer.parseInt(CreateGraphicsWindow.column.getText());
 				int searchIndex = 3 * row + column;
-				CreateGraphicsWindow.buttonList.remove(searchIndex);
-				CreateGraphicsWindow.buttonList.add(searchIndex, CreateGraphicsWindow.selectionButton);
-				CreateGraphicsWindow.this.repaint();
+				System.out.println(buttonList.size());
+				for(int i = 0; i < buttonList.size(); i++){
+					JButton b = changeButton;
+					b.addActionListener(getImgListener(b));
+					if(i == searchIndex) buttons.add(b);
+					else buttons.add(buttonList.get(i));
+				}
+				buttonList.clear();
+				buttonList.addAll(buttons);
+				repaint();
 			}
 		};
 	}

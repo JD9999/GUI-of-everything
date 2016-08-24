@@ -30,7 +30,7 @@ public class SettingsWindow implements SmallLinkWindow{
 	private Color colour;
 
 	public Color getCurrentColour(){
-		return this.colour;
+		return colour;
 	}
 
 	public JInternalFrame getInsideFrame(){
@@ -113,7 +113,7 @@ public class SettingsWindow implements SmallLinkWindow{
 	}
 
 	public void setColour(Color c){
-		this.colour = c;
+		colour = c;
 	}
 
 	public String getName(){

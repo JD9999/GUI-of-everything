@@ -35,11 +35,11 @@ public class NoteWindow implements Window{
 	protected String currentHeading;
 
 	public Color getCurrentColour(){
-		return this.area.getForeground();
+		return area.getForeground();
 	}
 
 	public JInternalFrame getInsideFrame(){
-		this.topics.clear();
+		topics.clear();
 		JInternalFrame intFrame = new JInternalFrame();
 		JSplitPane pane = new JSplitPane(0);
 		JMenuBar menuBar = new JMenuBar();
@@ -63,14 +63,14 @@ public class NoteWindow implements Window{
 				}
 			}
 			saveNote(note);
-			for (JButton b : this.topics){
+			for (JButton b : topics){
 				System.out.println("Topic: " + b.getText());
 				menuBar.add(b);
 			}
 			menuBar.add(getButton(), "East");
 			pane.setLeftComponent(menuBar);
-			pane.setRightComponent(this.area);
-			this.area.setVisible(true);
+			pane.setRightComponent(area);
+			area.setVisible(true);
 			menuBar.setVisible(true);
 			intFrame.add(pane);
 		}catch (IOException e){
@@ -87,10 +87,10 @@ public class NoteWindow implements Window{
 			System.out.println("Note line: " + noteLine);
 		}
 		System.out.println("-------------------------");
-		this.notes.put(note.getHeading(), note);
+		notes.put(note.getHeading(), note);
 		JButton button = new JButton(heading);
 		button.addActionListener(getNoteListener(heading));
-		this.topics.add(button);
+		topics.add(button);
 	}
 
 	private JButton getButton() throws IOException{
@@ -117,8 +117,8 @@ public class NoteWindow implements Window{
 						writer.newLine();
 					}
 					writer.close();
-					Note n = (Note)NoteWindow.this.notes.get(NoteWindow.this.currentHeading);
-					String[] array = NoteWindow.this.area.getText().split(System.getProperty("line.separator"));
+					Note n = notes.get(currentHeading);
+					String[] array = area.getText().split(System.getProperty("line.separator"));
 					List<String> ls = toList(array);
 					n.setLines(ls);
 					List<String> allNotes = getAllNotesAsList();
@@ -155,10 +155,10 @@ public class NoteWindow implements Window{
 		return new ActionListener(){
 			
 			public void actionPerformed(ActionEvent event){
-				NoteWindow.this.currentHeading = heading;
-				Note n = (Note)NoteWindow.this.notes.get(heading);
+				currentHeading = heading;
+				Note n = notes.get(heading);
 				ListConverter<String> conv = new ListConverter<>(n.getLines());
-				NoteWindow.this.area.setText(conv.toLinedString());
+				area.setText(conv.toLinedString());
 			}
 		};
 	}
@@ -191,9 +191,9 @@ public class NoteWindow implements Window{
 		for (GUISetting setting : settings) {
 			if (setting.getText().equals("text-colour")) {
 				if (setting.getValue()) {
-					this.area.setForeground(c);
+					area.setForeground(c);
 				} else {
-					this.area.setBackground(c);
+					area.setBackground(c);
 				}
 			}
 		}

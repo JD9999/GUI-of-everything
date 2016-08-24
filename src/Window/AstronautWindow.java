@@ -59,43 +59,43 @@ public class AstronautWindow implements Window{
 		fieldW.setText("0");
 		fieldM.setText("0");
     
-		this.hourField = fieldH;
-		this.dayField = fieldD;
-		this.weekField = fieldW;
-		this.monthField = fieldM;
+		hourField = fieldH;
+		dayField = fieldD;
+		weekField = fieldW;
+		monthField = fieldM;
     
-		this.hourButton = hour;
-		this.dayButton = day;
-		this.weekButton = week;
-		this.monthButton = month;
+		hourButton = hour;
+		dayButton = day;
+		weekButton = week;
+		monthButton = month;
     
-		this.hourButton.setSize(300, 200);
-		this.hourButton.addActionListener(getActionListener(this.hourField));
-		this.hourButton.setText("Increment hour");
+		hourButton.setSize(300, 200);
+		hourButton.addActionListener(getActionListener(hourField));
+		hourButton.setText("Increment hour");
 		hourPanel.setLayout(new GridLayout(1, 0));
-		hourPanel.add(this.hourButton);
-		hourPanel.add(this.hourField);
+		hourPanel.add(hourButton);
+		hourPanel.add(hourField);
     
-		this.dayButton.setSize(300, 200);
-		this.dayButton.addActionListener(getActionListener(this.dayField));
-		this.dayButton.setText("Increment day");
+		dayButton.setSize(300, 200);
+		dayButton.addActionListener(getActionListener(dayField));
+		dayButton.setText("Increment day");
 		dayPanel.setLayout(new GridLayout(1, 0));
-    	dayPanel.add(this.dayButton);
-    	dayPanel.add(this.dayField);
+    	dayPanel.add(dayButton);
+    	dayPanel.add(dayField);
     
-    	this.weekButton.setSize(300, 200);
-    	this.weekButton.addActionListener(getActionListener(this.weekField));
-    	this.weekButton.setText("Increment week");
+    	weekButton.setSize(300, 200);
+    	weekButton.addActionListener(getActionListener(weekField));
+    	weekButton.setText("Increment week");
     	weekPanel.setLayout(new GridLayout(1, 0));
-    	weekPanel.add(this.weekButton);
-    	weekPanel.add(this.weekField);
+    	weekPanel.add(weekButton);
+    	weekPanel.add(weekField);
     
-    	this.monthButton.setSize(300, 200);
-    	this.monthButton.addActionListener(getActionListener(this.monthField));
-    	this.monthButton.setText("Increment month");
+    	monthButton.setSize(300, 200);
+    	monthButton.addActionListener(getActionListener(monthField));
+    	monthButton.setText("Increment month");
     	monthPanel.setLayout(new GridLayout(1, 0));
-    	monthPanel.add(this.monthButton);
-    	monthPanel.add(this.monthField);
+    	monthPanel.add(monthButton);
+    	monthPanel.add(monthField);
     
     	panel.add(hourPanel);
     	panel.add(dayPanel);
@@ -108,18 +108,18 @@ public class AstronautWindow implements Window{
     	top.setLayout(new GridLayout(2, 1));
     	JPanel bottom = new JPanel();
     	JLabel label = new JLabel();
-    	this.questionLabel = label;
-    	this.questionLabel.setHorizontalAlignment(0);
-    	this.questionLabel.setVerticalAlignment(0);
-    	this.questionLabel.setText("How long is the astronaut behind us?");
+    	questionLabel = label;
+    	questionLabel.setHorizontalAlignment(0);
+    	questionLabel.setVerticalAlignment(0);
+    	questionLabel.setText("How long is the astronaut behind us?");
     	JButton button = new JButton();
-    	this.answerField = new JTextArea();
-    	button.addActionListener(getActionListener(this.answerField, this.hourField, this.dayField, this.weekField, this.monthField));
+    	answerField = new JTextArea();
+    	button.addActionListener(getActionListener(answerField, hourField, dayField, weekField, monthField));
     	button.setText("Work it out!");
-    	this.answerButton = button;
-    	top.add(this.questionLabel);
-    	top.add(this.answerButton);
-    	bottom.add(this.answerField);
+    	answerButton = button;
+    	top.add(questionLabel);
+    	top.add(answerButton);
+    	bottom.add(answerField);
     	rightPane.setLeftComponent(top);
     	rightPane.setRightComponent(bottom);
     	pane.setRightComponent(rightPane);   
@@ -170,21 +170,21 @@ public class AstronautWindow implements Window{
 	}
   
 	public void setColour(Color c){
-		this.hourField.setForeground(c);
-		this.dayField.setForeground(c);
-		this.weekField.setForeground(c);
-		this.monthField.setForeground(c);
-		this.hourButton.setForeground(c);
-		this.dayButton.setForeground(c);
-		this.weekButton.setForeground(c);
-		this.monthButton.setForeground(c);
-		this.questionLabel.setForeground(c);
-		this.answerButton.setForeground(c);
-		this.answerField.setForeground(c);
+		hourField.setForeground(c);
+		dayField.setForeground(c);
+		weekField.setForeground(c);
+		monthField.setForeground(c);
+		hourButton.setForeground(c);
+		dayButton.setForeground(c);
+		weekButton.setForeground(c);
+		monthButton.setForeground(c);
+		questionLabel.setForeground(c);
+		answerButton.setForeground(c);
+		answerField.setForeground(c);
 	}
   
 	public Color getCurrentColour(){
-		return this.hourField.getForeground();
+		return hourField.getForeground();
 	}
   
 	public String getDescription(){

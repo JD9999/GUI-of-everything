@@ -29,7 +29,6 @@ public class CalendarWindow implements Window {
 	private JLabel calHeading;
 	private JLabel monthHeading;
 	private JTable table;
-	private boolean repaint = false;
 	private String month;
 	
 	@Override
@@ -47,19 +46,13 @@ public class CalendarWindow implements Window {
 		JTable table = new JTable(buildTable(monthKey));
 		this.table = table;
 		JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		rightSplit.setLeftComponent(this.table);	
+		rightSplit.setLeftComponent(table);	
 		rightSplit.setRightComponent(getAdditionComponent());
 		overseerPanel.setLeftComponent(getLabelPanel(month));
 		overseerPanel.setRightComponent(rightSplit);
 		retFrame.add(overseerPanel);
-		System.out.println("Table rows: " + this.table.getRowCount());
-		System.out.println("Table columns: " + this.table.getColumnCount());
-		
-		if(repaint){
-			System.out.println("Repaint done!");
-		}
-		
-		//retFrame.pack();
+		System.out.println("Table rows: " + table.getRowCount());
+		System.out.println("Table columns: " + table.getColumnCount());
 		return retFrame;
 	}
 
@@ -266,8 +259,6 @@ public class CalendarWindow implements Window {
 			}
 			CalendarEntry entry = new CalendarEntry(event, day, month, year);
 			entry.addToCalender();
-			repaint = true;
-			//Entry.requestRepaint(this);
 			table.setModel(buildTable(cal.get(Calendar.MONTH)));
 		};
 	}
@@ -322,7 +313,7 @@ public class CalendarWindow implements Window {
 		frameHeading.setForeground(Color.RED);
 		frameHeading.setHorizontalTextPosition(SwingConstants.CENTER);
 		frameHeading.setFont(frameHeading.getFont().deriveFont((float) 24));
-		this.calHeading = frameHeading;
+		calHeading = frameHeading;
 		JPanel labelPanel = new JPanel();
 		labelPanel.setLayout(new GridLayout(2,5));
 		JLabel blankLabel11 = new JLabel();
@@ -343,12 +334,12 @@ public class CalendarWindow implements Window {
 		blankLabel25.setText("");
 		labelPanel.add(blankLabel11);
 		labelPanel.add(blankLabel12);
-		labelPanel.add(this.calHeading);
+		labelPanel.add(calHeading);
 		labelPanel.add(blankLabel14);
 		labelPanel.add(blankLabel15);
 		labelPanel.add(blankLabel21);
 		labelPanel.add(blankLabel22);
-		labelPanel.add(this.monthHeading);
+		labelPanel.add(monthHeading);
 		labelPanel.add(blankLabel24);
 		labelPanel.add(blankLabel25);
 		return labelPanel;

@@ -59,8 +59,8 @@ public class MathWindow implements Window{
 		panel.add(pyth);
 		panel.add(trig);
 		pane.setLeftComponent(panel);
-		this.splitPane = pane;
-		frame.getContentPane().add(this.splitPane);
+		splitPane = pane;
+		frame.getContentPane().add(splitPane);
 		return frame;
 	}
 
@@ -68,7 +68,7 @@ public class MathWindow implements Window{
 		return new ActionListener(){
 			
 			public void actionPerformed(ActionEvent event){
-				MathWindow.this.isSet = true;
+				isSet = true;
 				JPanel overseePanel = new JPanel();
 				JTextField hypField = new JTextField();
 				JTextField aField = new JTextField();
@@ -100,7 +100,7 @@ public class MathWindow implements Window{
 				MathWindow.oppSmall1Label = aLabel;
 				MathWindow.adjSmall2Label = bLabel;
 
-				button.addActionListener(MathWindow.this.getActionListenerForPythagorasFinal(MathWindow.hypField, MathWindow.oppSmall1Field, MathWindow.adjSmall2Field, MathWindow.answerField));
+				button.addActionListener(getActionListenerForPythagorasFinal(MathWindow.hypField, MathWindow.oppSmall1Field, MathWindow.adjSmall2Field, MathWindow.answerField));
 				overseePanel.setLayout(new GridLayout(0, 1));
 				overseePanel.add(MathWindow.hypLabel, "Center");
 				overseePanel.add(MathWindow.hypField, "Center");
@@ -110,7 +110,7 @@ public class MathWindow implements Window{
 				overseePanel.add(MathWindow.adjSmall2Field, "Center");
 				overseePanel.add(button);
 				overseePanel.add(MathWindow.answerField);
-				MathWindow.this.splitPane.setRightComponent(overseePanel);
+				splitPane.setRightComponent(overseePanel);
 			}
 		};
 	}
@@ -130,18 +130,18 @@ public class MathWindow implements Window{
 					if (((a == 3.0D) && (b == 4.0D)) || ((a == 4.0D) && (b == 3.0D))) {
 						System.out.println("The result should be 5!");
 					}
-					double hypAnswer = this.p.getHypotenuse(a, b);
-					MathWindow.this.printWorkingIfSettingIsTrue(MathWindow.this.parseThroughSetting(hypAnswer), this.p.getWorking());
+					double hypAnswer = p.getHypotenuse(a, b);
+					printWorkingIfSettingIsTrue(parseThroughSetting(hypAnswer), p.getWorking());
 				}else if (s1.equals("0")){
 					double c = Double.parseDouble(hyp);
 					double b = Double.parseDouble(s2);
-					double a = this.p.getShorterSide(b, c);
-					MathWindow.this.printWorkingIfSettingIsTrue(MathWindow.this.parseThroughSetting(a), this.p.getWorking());
+					double a = p.getShorterSide(b, c);
+					printWorkingIfSettingIsTrue(parseThroughSetting(a), p.getWorking());
 				}else if (s2.equals("0")){
 					double c = Double.parseDouble(hyp);
 					double a = Double.parseDouble(s1);
-					double b = this.p.getShorterSide(a, c);
-					MathWindow.this.printWorkingIfSettingIsTrue(MathWindow.this.parseThroughSetting(b), this.p.getWorking());
+					double b = p.getShorterSide(a, c);
+					printWorkingIfSettingIsTrue(parseThroughSetting(b), p.getWorking());
 				}else{
 					throw new IllegalArgumentException("All of the fields have stuff in them!");
 				}
@@ -184,7 +184,7 @@ public class MathWindow implements Window{
 		return new ActionListener(){
 			
 			public void actionPerformed(ActionEvent arg0){
-				MathWindow.this.isSet = true;
+				isSet = true;
 				JPanel overseePanel = new JPanel();
 				JTextField hypField = new JTextField();
 				JTextField aField = new JTextField();
@@ -224,7 +224,7 @@ public class MathWindow implements Window{
 				MathWindow.adjSmall2Label = bLabel;
 				MathWindow.angLabel = anLabel;
 
-				button.addActionListener(MathWindow.this.getActionListenerForTrigonomotryFinal(MathWindow.hypField, MathWindow.oppSmall1Field, MathWindow.adjSmall2Field, MathWindow.angField, MathWindow.answerField));
+				button.addActionListener(getActionListenerForTrigonomotryFinal(MathWindow.hypField, MathWindow.oppSmall1Field, MathWindow.adjSmall2Field, MathWindow.angField, MathWindow.answerField));
 				overseePanel.setLayout(new GridLayout(0, 1));
 				overseePanel.add(MathWindow.hypLabel, "Center");
 				overseePanel.add(MathWindow.hypField, "Center");
@@ -236,7 +236,7 @@ public class MathWindow implements Window{
 				overseePanel.add(MathWindow.angField, "Center");
 				overseePanel.add(button);
 				overseePanel.add(MathWindow.answerField);
-				MathWindow.this.splitPane.setRightComponent(overseePanel);
+				splitPane.setRightComponent(overseePanel);
 			}
 		};
 	}
@@ -369,7 +369,7 @@ public class MathWindow implements Window{
 	}
 
 	public void setColour(Color c){
-		if (this.isSet){
+		if (isSet){
 			hypField.setForeground(c);
 			adjSmall2Field.setForeground(c);
 			oppSmall1Field.setForeground(c);
@@ -384,7 +384,7 @@ public class MathWindow implements Window{
 				angLabel.setForeground(c);
 			}
 		}else{
-			this.splitPane.setBackground(c);
+			splitPane.setBackground(c);
 		}
 	}
 
