@@ -22,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 import Calendar.CalendarEntry;
 import Calendar.Scheduler;
 import Settings.GUISetting;
+import Settings.SettingsLoader;
 
 public class CalendarWindow implements Window {
 
@@ -405,15 +406,22 @@ public class CalendarWindow implements Window {
 
 	@Override
 	public GUISetting[] getSettings() {
-		GUISetting setting = new GUISetting("One colour", getName());
+		GUISetting setting = new GUISetting("Heading colour", getName());
 		return new GUISetting[]{setting};
 	}
 
 	@Override
 	public void setColour(Color c) {
-		calHeading.setForeground(c);
-		monthHeading.setForeground(c);
-		table.setForeground(c);
+		List<GUISetting> settings = SettingsLoader.getSettings();
+		for(GUISetting setting : settings){
+			if(setting.getText().equals("Heading colour")){
+				if(setting.getValue()){
+					calHeading.setForeground(c);
+					monthHeading.setForeground(c);
+					table.setForeground(c);
+				}else table.setBackground(c);
+			}
+		}
 	}
 
 	@Override
